@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package badezimmer;
+
+enum DeviceKind {
+  UNKNOWN_KIND = 0;
+  SENSOR_KIND = 1;
+  ACTUATOR_KIND = 2;
+}
+
+enum DeviceStatus {
+  UNKNOWN_DEVICE_STATUS = 0;
+  OFFLINE_DEVICE_STATUS = 1;
+  ONLINE_DEVICE_STATUS = 2;
+  ERROR_DEVICE_STATUS = 3;
+}
+
+message ConnectedDevice {
+  string id = 1;
+  string device_name = 2;
+  DeviceKind kind = 3;
+  DeviceStatus status = 4;
+  repeated string ips = 5;
+}
+
+message ListConnectedDevicesRequest {
+  optional DeviceKind filter_kind = 1;
+  optional string filter_name = 2;
+}
+
+message ListConnectedDevicesResponse { repeated ConnectedDevice devices = 1; }
+
+message SendActuatorCommandRequest {
+  string device_id = 1;
+  oneof action { LightLampActionRequest light_action = 2; }
+}
+
+message SendActuatorCommandResponse { optional string message = 2; }
+
+message SensorData {
+  string device_id = 1;
+  DeviceKind kind = 2;
+  oneof data { LightSensorData light_data = 3; }
+}
+
+message Color {
+  fixed32 value = 1; // Represents the color as an unsigned 32-bit integer
+                     // (e.g., ARGB or RGB)
+}
+
+message LightLampActionRequest {
+  optional bool turn_on = 1;
+  optional int32 brightness = 2;
+  optional Color color = 3;
+}
+
+message LightSensorData {
+  int32 brightness = 1;
+  Color color = 2;
+  float brightness_percentage = 3;
+}

@@ -1,0 +1,7 @@
+version: "3"
+
+tasks:
+  proto:gen:
+    desc: Generate code from proto files
+    cmds:
+      - protoc --python_out=src/badezimmer --pyi_out=src/badezimmer ./proto/*.proto -I ./proto/

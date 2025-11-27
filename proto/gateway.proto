@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package gateway;
+import "light_lamp.proto";
+
+enum DeviceKind {
+  UNKNOWN = 0;
+  SENSOR = 1;
+  ACTUATOR = 2;
+}
+
+message ConnectedDevice {
+  string id = 1;
+  string device_name = 2;
+  DeviceKind kind = 3;
+  string status = 4;
+  repeated string ips = 5;
+}
+
+message ListConnectedDevicesRequest {
+  optional DeviceKind filter_kind = 1;
+  optional string filter_name = 2;
+}
+
+message ListConnectedDevicesResponse { repeated ConnectedDevice devices = 1; }
+
+message SendActuatorCommandRequest {
+  string device_id = 1;
+  oneof action { light_lamp.LightLampActionRequest light_action = 2; }
+}
+
+message SendActuatorCommandResponse { optional string message = 2; }
+
+message SensorData {
+  string device_id = 1;
+  DeviceKind kind = 2;
+  oneof data { light_lamp.LightSensorData light_data = 3; }
+}

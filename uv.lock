@@ -42,7 +42,13 @@ wheels = [
 [[package]]
 name = "badezimmer"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
+dependencies = [
+    { name = "python-json-logger" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "python-json-logger", specifier = ">=2.0.7" }]
 
 [[package]]
 name = "certifi"

@@ -9,4 +9,4 @@ tasks:
   gateway:run:
     desc: Run the API gateway
     cmds:
-      - uv run python -m gateway.main
+      - uv run gateway

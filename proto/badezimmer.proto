@@ -21,6 +21,7 @@ message ConnectedDevice {
   DeviceKind kind = 3;
   DeviceStatus status = 4;
   repeated string ips = 5;
+  int32 port = 6;
 }
 
 message ListConnectedDevicesRequest {
@@ -55,7 +56,7 @@ message LightLampActionRequest {
 }
 
 message LightSensorData {
-  int32 brightness = 1;
+  bool is_on = 1;
   Color color = 2;
   float brightness_percentage = 3;
 }

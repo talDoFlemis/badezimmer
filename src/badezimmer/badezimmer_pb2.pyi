@@ -34,12 +34,14 @@ class ConnectedDevice(_message.Message):
     KIND_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     IPS_FIELD_NUMBER: _ClassVar[int]
+    PORT_FIELD_NUMBER: _ClassVar[int]
     id: str
     device_name: str
     kind: DeviceKind
     status: DeviceStatus
     ips: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ...) -> None: ...
+    port: int
+    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ...) -> None: ...
 
 class ListConnectedDevicesRequest(_message.Message):
     __slots__ = ()
@@ -97,10 +99,10 @@ class LightLampActionRequest(_message.Message):
 
 class LightSensorData(_message.Message):
     __slots__ = ()
-    BRIGHTNESS_FIELD_NUMBER: _ClassVar[int]
+    IS_ON_FIELD_NUMBER: _ClassVar[int]
     COLOR_FIELD_NUMBER: _ClassVar[int]
     BRIGHTNESS_PERCENTAGE_FIELD_NUMBER: _ClassVar[int]
-    brightness: int
+    is_on: bool
     color: Color
     brightness_percentage: float
-    def __init__(self, brightness: _Optional[int] = ..., color: _Optional[_Union[Color, _Mapping]] = ..., brightness_percentage: _Optional[float] = ...) -> None: ...
+    def __init__(self, is_on: _Optional[bool] = ..., color: _Optional[_Union[Color, _Mapping]] = ..., brightness_percentage: _Optional[float] = ...) -> None: ...

@@ -9,6 +9,7 @@ from badezimmer import (
     SendActuatorCommandResponse,
     SendActuatorCommandRequest,
     DeviceKind,
+    DeviceCategory,
 )
 from badezimmer.tcp import (
     get_random_available_tcp_port,
@@ -29,7 +30,7 @@ SERVICE_TYPE = "_fartdetector._tcp.local."
 DESCRIPTION = "A fart detector device"
 PROPERTIES: dict[str | bytes, str | bytes | None] = {
     "kind": DeviceKind.Name(DeviceKind.SENSOR_KIND.numerator),
-    "category": "fartdetector",
+    "category": DeviceCategory.Name(DeviceCategory.FART_DETECTOR.numerator),
     "severity": random.choice(possible_severities),
     "diet": random.choice(possible_diets),
 }

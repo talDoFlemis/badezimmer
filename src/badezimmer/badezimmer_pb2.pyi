@@ -19,6 +19,12 @@ class DeviceStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     OFFLINE_DEVICE_STATUS: _ClassVar[DeviceStatus]
     ONLINE_DEVICE_STATUS: _ClassVar[DeviceStatus]
     ERROR_DEVICE_STATUS: _ClassVar[DeviceStatus]
+
+class DeviceCategory(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_CATEGORY: _ClassVar[DeviceCategory]
+    LIGHT_LAMP: _ClassVar[DeviceCategory]
+    FART_DETECTOR: _ClassVar[DeviceCategory]
 UNKNOWN_KIND: DeviceKind
 SENSOR_KIND: DeviceKind
 ACTUATOR_KIND: DeviceKind
@@ -26,6 +32,9 @@ UNKNOWN_DEVICE_STATUS: DeviceStatus
 OFFLINE_DEVICE_STATUS: DeviceStatus
 ONLINE_DEVICE_STATUS: DeviceStatus
 ERROR_DEVICE_STATUS: DeviceStatus
+UNKNOWN_CATEGORY: DeviceCategory
+LIGHT_LAMP: DeviceCategory
+FART_DETECTOR: DeviceCategory
 
 class ConnectedDevice(_message.Message):
     __slots__ = ()
@@ -43,6 +52,7 @@ class ConnectedDevice(_message.Message):
     IPS_FIELD_NUMBER: _ClassVar[int]
     PORT_FIELD_NUMBER: _ClassVar[int]
     PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    CATEGORY_FIELD_NUMBER: _ClassVar[int]
     id: str
     device_name: str
     kind: DeviceKind
@@ -50,7 +60,8 @@ class ConnectedDevice(_message.Message):
     ips: _containers.RepeatedScalarFieldContainer[str]
     port: int
     properties: _containers.ScalarMap[str, str]
-    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ..., properties: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    category: DeviceCategory
+    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ..., properties: _Optional[_Mapping[str, str]] = ..., category: _Optional[_Union[DeviceCategory, str]] = ...) -> None: ...
 
 class ListConnectedDevicesRequest(_message.Message):
     __slots__ = ()

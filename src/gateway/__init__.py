@@ -21,6 +21,7 @@ from badezimmer import (
     LightLampActionRequest,
     SendActuatorCommandRequest,
     SendActuatorCommandResponse,
+    DeviceCategory,
     setup_logger,
 )
 from badezimmer.tcp import send_request
@@ -44,9 +45,14 @@ def generate_connected_device_from_info(info: ServiceInfo) -> ConnectedDevice:
     if kind is None:
         kind = DeviceKind.UNKNOWN_KIND
 
+    category = properties.get("category")
+    if category is None:
+        category = DeviceCategory.UNKNOWN_CATEGORY
+
     return ConnectedDevice(
         id=info.name,
         device_name=info.name,
+        category=category,
         kind=kind,
         status=DeviceStatus.ONLINE_DEVICE_STATUS,
         port=info.port,
@@ -159,6 +165,7 @@ def healthz():
 class ConnectedDeviceResponse(BaseModel):
     id: str
     device_name: str
+    category: str
     kind: str
     status: str
     ips: list[str]
@@ -173,6 +180,7 @@ def list_devices() -> list[ConnectedDeviceResponse]:
             id=device.id,
             device_name=device.device_name,
             kind=DeviceKind.Name(device.kind.numerator),
+            category=DeviceCategory.Name(device.category.numerator),
             status=DeviceStatus.Name(device.status.numerator),
             ips=list(device.ips),
             properties=dict(device.properties),

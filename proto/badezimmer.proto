@@ -15,6 +15,12 @@ enum DeviceStatus {
   ERROR_DEVICE_STATUS = 3;
 }
 
+enum DeviceCategory {
+  UNKNOWN_CATEGORY = 0;
+  LIGHT_LAMP = 1;
+  FART_DETECTOR = 2;
+}
+
 message ConnectedDevice {
   string id = 1;
   string device_name = 2;
@@ -23,6 +29,7 @@ message ConnectedDevice {
   repeated string ips = 5;
   int32 port = 6;
   map<string, string> properties = 7;
+  DeviceCategory category = 8;
 }
 
 message ListConnectedDevicesRequest {

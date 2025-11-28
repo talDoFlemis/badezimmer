@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x62\x61\x64\x65zimmer.proto\x12\nbadezimmer\"\x91\x02\n\x0f\x43onnectedDevice\x12\n\n\x02id\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12$\n\x04kind\x18\x03 \x01(\x0e\x32\x16.badezimmer.DeviceKind\x12(\n\x06status\x18\x04 \x01(\x0e\x32\x18.badezimmer.DeviceStatus\x12\x0b\n\x03ips\x18\x05 \x03(\t\x12\x0c\n\x04port\x18\x06 \x01(\x05\x12?\n\nproperties\x18\x07 \x03(\x0b\x32+.badezimmer.ConnectedDevice.PropertiesEntry\x1a\x31\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x89\x01\n\x1bListConnectedDevicesRequest\x12\x30\n\x0b\x66ilter_kind\x18\x01 \x01(\x0e\x32\x16.badezimmer.DeviceKindH\x00\x88\x01\x01\x12\x18\n\x0b\x66ilter_name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0e\n\x0c_filter_kindB\x0e\n\x0c_filter_name\"L\n\x1cListConnectedDevicesResponse\x12,\n\x07\x64\x65vices\x18\x01 \x03(\x0b\x32\x1b.badezimmer.ConnectedDevice\"u\n\x1aSendActuatorCommandRequest\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12:\n\x0clight_action\x18\x02 \x01(\x0b\x32\".badezimmer.LightLampActionRequestH\x00\x42\x08\n\x06\x61\x63tion\"?\n\x1bSendActuatorCommandResponse\x12\x14\n\x07message\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_message\"\x80\x01\n\nSensorData\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12$\n\x04kind\x18\x02 \x01(\x0e\x32\x16.badezimmer.DeviceKind\x12\x31\n\nlight_data\x18\x03 \x01(\x0b\x32\x1b.badezimmer.LightSensorDataH\x00\x42\x06\n\x04\x64\x61ta\"\x16\n\x05\x43olor\x12\r\n\x05value\x18\x01 \x01(\x07\"\x93\x01\n\x16LightLampActionRequest\x12\x14\n\x07turn_on\x18\x01 \x01(\x08H\x00\x88\x01\x01\x12\x17\n\nbrightness\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12%\n\x05\x63olor\x18\x03 \x01(\x0b\x32\x11.badezimmer.ColorH\x02\x88\x01\x01\x42\n\n\x08_turn_onB\r\n\x0b_brightnessB\x08\n\x06_color\"a\n\x0fLightSensorData\x12\r\n\x05is_on\x18\x01 \x01(\x08\x12 \n\x05\x63olor\x18\x02 \x01(\x0b\x32\x11.badezimmer.Color\x12\x1d\n\x15\x62rightness_percentage\x18\x03 \x01(\x02*B\n\nDeviceKind\x12\x10\n\x0cUNKNOWN_KIND\x10\x00\x12\x0f\n\x0bSENSOR_KIND\x10\x01\x12\x11\n\rACTUATOR_KIND\x10\x02*w\n\x0c\x44\x65viceStatus\x12\x19\n\x15UNKNOWN_DEVICE_STATUS\x10\x00\x12\x19\n\x15OFFLINE_DEVICE_STATUS\x10\x01\x12\x18\n\x14ONLINE_DEVICE_STATUS\x10\x02\x12\x17\n\x13\x45RROR_DEVICE_STATUS\x10\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x62\x61\x64\x65zimmer.proto\x12\nbadezimmer\"\xbf\x02\n\x0f\x43onnectedDevice\x12\n\n\x02id\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12$\n\x04kind\x18\x03 \x01(\x0e\x32\x16.badezimmer.DeviceKind\x12(\n\x06status\x18\x04 \x01(\x0e\x32\x18.badezimmer.DeviceStatus\x12\x0b\n\x03ips\x18\x05 \x03(\t\x12\x0c\n\x04port\x18\x06 \x01(\x05\x12?\n\nproperties\x18\x07 \x03(\x0b\x32+.badezimmer.ConnectedDevice.PropertiesEntry\x12,\n\x08\x63\x61tegory\x18\x08 \x01(\x0e\x32\x1a.badezimmer.DeviceCategory\x1a\x31\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x89\x01\n\x1bListConnectedDevicesRequest\x12\x30\n\x0b\x66ilter_kind\x18\x01 \x01(\x0e\x32\x16.badezimmer.DeviceKindH\x00\x88\x01\x01\x12\x18\n\x0b\x66ilter_name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0e\n\x0c_filter_kindB\x0e\n\x0c_filter_name\"L\n\x1cListConnectedDevicesResponse\x12,\n\x07\x64\x65vices\x18\x01 \x03(\x0b\x32\x1b.badezimmer.ConnectedDevice\"u\n\x1aSendActuatorCommandRequest\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12:\n\x0clight_action\x18\x02 \x01(\x0b\x32\".badezimmer.LightLampActionRequestH\x00\x42\x08\n\x06\x61\x63tion\"?\n\x1bSendActuatorCommandResponse\x12\x14\n\x07message\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_message\"\x80\x01\n\nSensorData\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12$\n\x04kind\x18\x02 \x01(\x0e\x32\x16.badezimmer.DeviceKind\x12\x31\n\nlight_data\x18\x03 \x01(\x0b\x32\x1b.badezimmer.LightSensorDataH\x00\x42\x06\n\x04\x64\x61ta\"\x16\n\x05\x43olor\x12\r\n\x05value\x18\x01 \x01(\x07\"\x93\x01\n\x16LightLampActionRequest\x12\x14\n\x07turn_on\x18\x01 \x01(\x08H\x00\x88\x01\x01\x12\x17\n\nbrightness\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12%\n\x05\x63olor\x18\x03 \x01(\x0b\x32\x11.badezimmer.ColorH\x02\x88\x01\x01\x42\n\n\x08_turn_onB\r\n\x0b_brightnessB\x08\n\x06_color\"a\n\x0fLightSensorData\x12\r\n\x05is_on\x18\x01 \x01(\x08\x12 \n\x05\x63olor\x18\x02 \x01(\x0b\x32\x11.badezimmer.Color\x12\x1d\n\x15\x62rightness_percentage\x18\x03 \x01(\x02*B\n\nDeviceKind\x12\x10\n\x0cUNKNOWN_KIND\x10\x00\x12\x0f\n\x0bSENSOR_KIND\x10\x01\x12\x11\n\rACTUATOR_KIND\x10\x02*w\n\x0c\x44\x65viceStatus\x12\x19\n\x15UNKNOWN_DEVICE_STATUS\x10\x00\x12\x19\n\x15OFFLINE_DEVICE_STATUS\x10\x01\x12\x18\n\x14ONLINE_DEVICE_STATUS\x10\x02\x12\x17\n\x13\x45RROR_DEVICE_STATUS\x10\x03*I\n\x0e\x44\x65viceCategory\x12\x14\n\x10UNKNOWN_CATEGORY\x10\x00\x12\x0e\n\nLIGHT_LAMP\x10\x01\x12\x11\n\rFART_DETECTOR\x10\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,28 +33,30 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._loaded_options = None
   _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_options = b'8\001'
-  _globals['_DEVICEKIND']._serialized_start=1114
-  _globals['_DEVICEKIND']._serialized_end=1180
-  _globals['_DEVICESTATUS']._serialized_start=1182
-  _globals['_DEVICESTATUS']._serialized_end=1301
+  _globals['_DEVICEKIND']._serialized_start=1160
+  _globals['_DEVICEKIND']._serialized_end=1226
+  _globals['_DEVICESTATUS']._serialized_start=1228
+  _globals['_DEVICESTATUS']._serialized_end=1347
+  _globals['_DEVICECATEGORY']._serialized_start=1349
+  _globals['_DEVICECATEGORY']._serialized_end=1422
   _globals['_CONNECTEDDEVICE']._serialized_start=33
-  _globals['_CONNECTEDDEVICE']._serialized_end=306
-  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_start=257
-  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_end=306
-  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_start=309
-  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_end=446
-  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_start=448
-  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_end=524
-  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_start=526
-  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_end=643
-  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_start=645
-  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_end=708
-  _globals['_SENSORDATA']._serialized_start=711
-  _globals['_SENSORDATA']._serialized_end=839
-  _globals['_COLOR']._serialized_start=841
-  _globals['_COLOR']._serialized_end=863
-  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_start=866
-  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_end=1013
-  _globals['_LIGHTSENSORDATA']._serialized_start=1015
-  _globals['_LIGHTSENSORDATA']._serialized_end=1112
+  _globals['_CONNECTEDDEVICE']._serialized_end=352
+  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_start=303
+  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_end=352
+  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_start=355
+  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_end=492
+  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_start=494
+  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_end=570
+  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_start=572
+  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_end=689
+  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_start=691
+  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_end=754
+  _globals['_SENSORDATA']._serialized_start=757
+  _globals['_SENSORDATA']._serialized_end=885
+  _globals['_COLOR']._serialized_start=887
+  _globals['_COLOR']._serialized_end=909
+  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_start=912
+  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_end=1059
+  _globals['_LIGHTSENSORDATA']._serialized_start=1061
+  _globals['_LIGHTSENSORDATA']._serialized_end=1158
 # @@protoc_insertion_point(module_scope)

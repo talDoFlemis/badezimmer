@@ -12,6 +12,7 @@ from zeroconf import (
 )
 
 import lightlamp
+import fartdetector
 from badezimmer import (
     Color,
     ConnectedDevice,
@@ -121,7 +122,8 @@ class GatewayListener(ServiceListener):
 
 async def discovery_services_job() -> None:
     listener = GatewayListener()
-    services = [lightlamp.SERVICE_TYPE]
+    # Register here all service types you want to discover
+    services = [lightlamp.SERVICE_TYPE, fartdetector.SERVICE_TYPE]
     logger.info("found services", extra={"services": services})
     ServiceBrowser(zeroconf, services, listener)
 
@@ -161,6 +163,7 @@ class ConnectedDeviceResponse(BaseModel):
     status: str
     ips: list[str]
     properties: dict[str, str]
+    port: int
 
 
 @app.get("/devices")
@@ -173,6 +176,7 @@ def list_devices() -> list[ConnectedDeviceResponse]:
             status=DeviceStatus.Name(device.status.numerator),
             ips=list(device.ips),
             properties=dict(device.properties),
+            port=device.port,
         )
         for device in devices.values()
     ]

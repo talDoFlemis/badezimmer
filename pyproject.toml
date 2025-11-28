@@ -19,3 +19,4 @@ package = true
 [project.scripts]
 gateway = "gateway:main"
 lightlamp = "lightlamp:main"
+fartdetector = "fartdetector:main"

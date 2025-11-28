@@ -33,33 +33,20 @@ zeroconf = Zeroconf(ip_version=IPVersion.V4Only)
 devices: dict[str, ConnectedDevice] = {}
 
 
-def str_to_device_kind(kind_str: str) -> DeviceKind:
-    parts = kind_str.split(".")
-    if len(parts) != 5:
-        return DeviceKind.UNKNOWN_KIND
-
-    # Format is _category._kind._badezimmer._protocol._domain.
-    kind = parts[1]
-    if kind == "sensor":
-        return DeviceKind.SENSOR_KIND
-    elif kind == "actuator":
-        return DeviceKind.ACTUATOR_KIND
-    else:
-        return DeviceKind.UNKNOWN_KIND
-
-
-def generate_connected_device_from_info(
-    type_: str, info: ServiceInfo
-) -> ConnectedDevice:
+def generate_connected_device_from_info(info: ServiceInfo) -> ConnectedDevice:
     properties = {}
 
     for key, value in info.decoded_properties.items():
         properties[key] = value if value is not None else ""
 
+    kind = properties.get("kind")
+    if kind is None:
+        kind = DeviceKind.UNKNOWN_KIND
+
     return ConnectedDevice(
         id=info.name,
         device_name=info.name,
-        kind=str_to_device_kind(type_),
+        kind=kind,
         status=DeviceStatus.ONLINE_DEVICE_STATUS,
         port=info.port,
         ips=[str(addr) for addr in info.parsed_addresses(version=IPVersion.V4Only)],
@@ -77,7 +64,6 @@ class GatewayListener(ServiceListener):
             return
 
         device = generate_connected_device_from_info(
-            type_=type_,
             info=info,
         )
 
@@ -116,7 +102,6 @@ class GatewayListener(ServiceListener):
             return
 
         device = generate_connected_device_from_info(
-            type_=type_,
             info=info,
         )
 

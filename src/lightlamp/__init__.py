@@ -8,6 +8,7 @@ from badezimmer import (
     setup_logger,
     SendActuatorCommandResponse,
     SendActuatorCommandRequest,
+    DeviceKind,
 )
 from badezimmer.tcp import (
     get_random_available_tcp_port,
@@ -19,7 +20,7 @@ import asyncio
 SERVICE_TYPE = "_lightlamp._tcp.local."
 DESCRIPTION = "A smart light lamp device"
 PROPERTIES: dict[str | bytes, str | bytes | None] = {
-    "kind": "actuator",
+    "kind": DeviceKind.Name(DeviceKind.ACTUATOR_KIND.numerator),
     "category": "light",
     "is_on": "false",
     "brightness": "0",

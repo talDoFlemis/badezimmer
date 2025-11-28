@@ -51,6 +51,11 @@ def str_to_device_kind(kind_str: str) -> DeviceKind:
 def generate_connected_device_from_info(
     type_: str, info: ServiceInfo
 ) -> ConnectedDevice:
+    properties = {}
+
+    for key, value in info.decoded_properties.items():
+        properties[key] = value if value is not None else ""
+
     return ConnectedDevice(
         id=info.name,
         device_name=info.name,
@@ -58,6 +63,7 @@ def generate_connected_device_from_info(
         status=DeviceStatus.ONLINE_DEVICE_STATUS,
         port=info.port,
         ips=[str(addr) for addr in info.parsed_addresses(version=IPVersion.V4Only)],
+        properties=properties,
     )
 
 
@@ -169,6 +175,7 @@ class ConnectedDeviceResponse(BaseModel):
     kind: str
     status: str
     ips: list[str]
+    properties: dict[str, str]
 
 
 @app.get("/devices")
@@ -180,6 +187,7 @@ def list_devices() -> list[ConnectedDeviceResponse]:
             kind=DeviceKind.Name(device.kind.numerator),
             status=DeviceStatus.Name(device.status.numerator),
             ips=list(device.ips),
+            properties=dict(device.properties),
         )
         for device in devices.values()
     ]

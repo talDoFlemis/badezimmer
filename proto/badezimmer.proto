@@ -22,6 +22,7 @@ message ConnectedDevice {
   DeviceStatus status = 4;
   repeated string ips = 5;
   int32 port = 6;
+  map<string, string> properties = 7;
 }
 
 message ListConnectedDevicesRequest {

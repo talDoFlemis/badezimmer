@@ -29,19 +29,28 @@ ERROR_DEVICE_STATUS: DeviceStatus
 
 class ConnectedDevice(_message.Message):
     __slots__ = ()
+    class PropertiesEntry(_message.Message):
+        __slots__ = ()
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
     ID_FIELD_NUMBER: _ClassVar[int]
     DEVICE_NAME_FIELD_NUMBER: _ClassVar[int]
     KIND_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     IPS_FIELD_NUMBER: _ClassVar[int]
     PORT_FIELD_NUMBER: _ClassVar[int]
+    PROPERTIES_FIELD_NUMBER: _ClassVar[int]
     id: str
     device_name: str
     kind: DeviceKind
     status: DeviceStatus
     ips: _containers.RepeatedScalarFieldContainer[str]
     port: int
-    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ...) -> None: ...
+    properties: _containers.ScalarMap[str, str]
+    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ..., properties: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class ListConnectedDevicesRequest(_message.Message):
     __slots__ = ()

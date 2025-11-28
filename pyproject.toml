@@ -5,12 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "protobuf>=6.33.1",
-    "python-json-logger>=2.0.7",
+  "fastapi[standard]>=0.122.0",
+  "protobuf>=6.33.1",
+  "python-json-logger>=2.0.7",
+  "zeroconf>=0.148.0",
 ]
 
 [tool.uv]
 package = true
 
-[tool.uv.workspace]
-members = ["gateway"]
+[project.scripts]
+gateway = "gateway:main"

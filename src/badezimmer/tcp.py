@@ -29,6 +29,21 @@ def get_all_ips_for_adapters() -> list[bytes]:
     return list(ips)
 
 
+def get_all_ips_strings_for_adapters() -> list[str]:
+    """
+    Retrieves all IPv4 addresses associated with the machine's network adapters.
+    """
+    ips = set()
+    adapters = ifaddr.get_adapters()
+
+    for adapter in adapters:
+        for ip in adapter.ips:
+            if ip.is_IPv4 and ip.ip not in ips:
+                ips.add(str(ip.ip))
+
+    return list(ips)
+
+
 def get_random_available_tcp_port():
     """
     Finds a random, available TCP port by binding a socket to port 0

@@ -46,12 +46,6 @@ message SendActuatorCommandRequest {
 
 message SendActuatorCommandResponse { optional string message = 2; }
 
-message SensorData {
-  string device_id = 1;
-  DeviceKind kind = 2;
-  oneof data { LightSensorData light_data = 3; }
-}
-
 message Color {
   fixed32 value = 1; // Represents the color as an unsigned 32-bit integer
                      // (e.g., ARGB or RGB)
@@ -63,8 +57,66 @@ message LightLampActionRequest {
   optional Color color = 3;
 }
 
-message LightSensorData {
-  bool is_on = 1;
-  Color color = 2;
-  float brightness_percentage = 3;
+enum MDNSType {
+  MDNS_A = 0;
+  MDNS_PTR = 1;
+  MDNS_SRV = 2;
+  MDNS_TXT = 3;
+}
+
+message MDNSQuestion {
+  string name = 1;
+  MDNSType type = 2;
+}
+
+message MDNSQueryRequest { repeated MDNSQuestion questions = 1; }
+
+message MDNSPointerRecord {
+  string name = 1;
+  string domain_name = 2;
+}
+
+message MDNSSRVRecord {
+  string name = 1;
+  int32 port = 2;
+  string target = 3;
+  string protocol = 4;
+  string service = 5;
+  string instance = 6;
+}
+
+message MDNSTextRecord {
+  string name = 1;
+  map<string, string> entries = 2;
+}
+
+message MDNSARecord {
+  string name = 1;
+  string address = 2;
+}
+
+message MDNSRecord {
+  string name = 1;
+  int32 ttl = 2;
+  bool cache_flush = 3;
+
+  oneof record {
+    MDNSPointerRecord ptr_record = 4;
+    MDNSSRVRecord srv_record = 5;
+    MDNSTextRecord txt_record = 6;
+    MDNSARecord a_record = 7;
+  }
+}
+
+message MDNSQueryResponse {
+  MDNSRecord answer = 1;
+  repeated MDNSRecord additional_records = 2;
+}
+
+message MDNS {
+  fixed32 transaction_id = 1;
+  oneof data {
+    MDNSQueryRequest query_request = 2;
+    MDNSQueryResponse query_response = 3;
+  }
 }

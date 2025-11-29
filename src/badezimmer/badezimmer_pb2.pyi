@@ -25,6 +25,13 @@ class DeviceCategory(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     UNKNOWN_CATEGORY: _ClassVar[DeviceCategory]
     LIGHT_LAMP: _ClassVar[DeviceCategory]
     FART_DETECTOR: _ClassVar[DeviceCategory]
+
+class MDNSType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    MDNS_A: _ClassVar[MDNSType]
+    MDNS_PTR: _ClassVar[MDNSType]
+    MDNS_SRV: _ClassVar[MDNSType]
+    MDNS_TXT: _ClassVar[MDNSType]
 UNKNOWN_KIND: DeviceKind
 SENSOR_KIND: DeviceKind
 ACTUATOR_KIND: DeviceKind
@@ -35,6 +42,10 @@ ERROR_DEVICE_STATUS: DeviceStatus
 UNKNOWN_CATEGORY: DeviceCategory
 LIGHT_LAMP: DeviceCategory
 FART_DETECTOR: DeviceCategory
+MDNS_A: MDNSType
+MDNS_PTR: MDNSType
+MDNS_SRV: MDNSType
+MDNS_TXT: MDNSType
 
 class ConnectedDevice(_message.Message):
     __slots__ = ()
@@ -91,16 +102,6 @@ class SendActuatorCommandResponse(_message.Message):
     message: str
     def __init__(self, message: _Optional[str] = ...) -> None: ...
 
-class SensorData(_message.Message):
-    __slots__ = ()
-    DEVICE_ID_FIELD_NUMBER: _ClassVar[int]
-    KIND_FIELD_NUMBER: _ClassVar[int]
-    LIGHT_DATA_FIELD_NUMBER: _ClassVar[int]
-    device_id: str
-    kind: DeviceKind
-    light_data: LightSensorData
-    def __init__(self, device_id: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., light_data: _Optional[_Union[LightSensorData, _Mapping]] = ...) -> None: ...
-
 class Color(_message.Message):
     __slots__ = ()
     VALUE_FIELD_NUMBER: _ClassVar[int]
@@ -117,12 +118,99 @@ class LightLampActionRequest(_message.Message):
     color: Color
     def __init__(self, turn_on: _Optional[bool] = ..., brightness: _Optional[int] = ..., color: _Optional[_Union[Color, _Mapping]] = ...) -> None: ...
 
-class LightSensorData(_message.Message):
+class MDNSQuestion(_message.Message):
     __slots__ = ()
-    IS_ON_FIELD_NUMBER: _ClassVar[int]
-    COLOR_FIELD_NUMBER: _ClassVar[int]
-    BRIGHTNESS_PERCENTAGE_FIELD_NUMBER: _ClassVar[int]
-    is_on: bool
-    color: Color
-    brightness_percentage: float
-    def __init__(self, is_on: _Optional[bool] = ..., color: _Optional[_Union[Color, _Mapping]] = ..., brightness_percentage: _Optional[float] = ...) -> None: ...
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    type: MDNSType
+    def __init__(self, name: _Optional[str] = ..., type: _Optional[_Union[MDNSType, str]] = ...) -> None: ...
+
+class MDNSQueryRequest(_message.Message):
+    __slots__ = ()
+    QUESTIONS_FIELD_NUMBER: _ClassVar[int]
+    questions: _containers.RepeatedCompositeFieldContainer[MDNSQuestion]
+    def __init__(self, questions: _Optional[_Iterable[_Union[MDNSQuestion, _Mapping]]] = ...) -> None: ...
+
+class MDNSPointerRecord(_message.Message):
+    __slots__ = ()
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    DOMAIN_NAME_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    domain_name: str
+    def __init__(self, name: _Optional[str] = ..., domain_name: _Optional[str] = ...) -> None: ...
+
+class MDNSSRVRecord(_message.Message):
+    __slots__ = ()
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PORT_FIELD_NUMBER: _ClassVar[int]
+    TARGET_FIELD_NUMBER: _ClassVar[int]
+    PROTOCOL_FIELD_NUMBER: _ClassVar[int]
+    SERVICE_FIELD_NUMBER: _ClassVar[int]
+    INSTANCE_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    port: int
+    target: str
+    protocol: str
+    service: str
+    instance: str
+    def __init__(self, name: _Optional[str] = ..., port: _Optional[int] = ..., target: _Optional[str] = ..., protocol: _Optional[str] = ..., service: _Optional[str] = ..., instance: _Optional[str] = ...) -> None: ...
+
+class MDNSTextRecord(_message.Message):
+    __slots__ = ()
+    class EntriesEntry(_message.Message):
+        __slots__ = ()
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    ENTRIES_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    entries: _containers.ScalarMap[str, str]
+    def __init__(self, name: _Optional[str] = ..., entries: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class MDNSARecord(_message.Message):
+    __slots__ = ()
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    ADDRESS_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    address: str
+    def __init__(self, name: _Optional[str] = ..., address: _Optional[str] = ...) -> None: ...
+
+class MDNSRecord(_message.Message):
+    __slots__ = ()
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    TTL_FIELD_NUMBER: _ClassVar[int]
+    CACHE_FLUSH_FIELD_NUMBER: _ClassVar[int]
+    PTR_RECORD_FIELD_NUMBER: _ClassVar[int]
+    SRV_RECORD_FIELD_NUMBER: _ClassVar[int]
+    TXT_RECORD_FIELD_NUMBER: _ClassVar[int]
+    A_RECORD_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    ttl: int
+    cache_flush: bool
+    ptr_record: MDNSPointerRecord
+    srv_record: MDNSSRVRecord
+    txt_record: MDNSTextRecord
+    a_record: MDNSARecord
+    def __init__(self, name: _Optional[str] = ..., ttl: _Optional[int] = ..., cache_flush: _Optional[bool] = ..., ptr_record: _Optional[_Union[MDNSPointerRecord, _Mapping]] = ..., srv_record: _Optional[_Union[MDNSSRVRecord, _Mapping]] = ..., txt_record: _Optional[_Union[MDNSTextRecord, _Mapping]] = ..., a_record: _Optional[_Union[MDNSARecord, _Mapping]] = ...) -> None: ...
+
+class MDNSQueryResponse(_message.Message):
+    __slots__ = ()
+    ANSWER_FIELD_NUMBER: _ClassVar[int]
+    ADDITIONAL_RECORDS_FIELD_NUMBER: _ClassVar[int]
+    answer: MDNSRecord
+    additional_records: _containers.RepeatedCompositeFieldContainer[MDNSRecord]
+    def __init__(self, answer: _Optional[_Union[MDNSRecord, _Mapping]] = ..., additional_records: _Optional[_Iterable[_Union[MDNSRecord, _Mapping]]] = ...) -> None: ...
+
+class MDNS(_message.Message):
+    __slots__ = ()
+    TRANSACTION_ID_FIELD_NUMBER: _ClassVar[int]
+    QUERY_REQUEST_FIELD_NUMBER: _ClassVar[int]
+    QUERY_RESPONSE_FIELD_NUMBER: _ClassVar[int]
+    transaction_id: int
+    query_request: MDNSQueryRequest
+    query_response: MDNSQueryResponse
+    def __init__(self, transaction_id: _Optional[int] = ..., query_request: _Optional[_Union[MDNSQueryRequest, _Mapping]] = ..., query_response: _Optional[_Union[MDNSQueryResponse, _Mapping]] = ...) -> None: ...

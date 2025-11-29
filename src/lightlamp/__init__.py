@@ -11,12 +11,16 @@ from badezimmer import (
     DeviceKind,
     DeviceCategory,
 )
+import badezimmer
 from badezimmer.tcp import (
     get_random_available_tcp_port,
     get_all_ips_for_adapters,
     handle_request,
 )
+
+from badezimmer.mdns import MDNSServiceInfo, BadezimmerMDNS
 import asyncio
+from zeroconf import Zeroconf
 
 SERVICE_TYPE = "_lightlamp._tcp.local."
 DESCRIPTION = "A smart light lamp device"
@@ -94,7 +98,18 @@ async def register(port: int):
 async def main_server(port: int):
     server = await asyncio.start_server(handle_request(execute), "0.0.0.0", port)
     logger.info("Starting Light Lamp service...", extra={"port": port})
-    await register(port)
+    # await register(port)
+    mdns = BadezimmerMDNS()
+    another_info = MDNSServiceInfo(
+        name="tubias",
+        type="tubias._tcp.local.",
+        port=port,
+        kind=DeviceKind.SENSOR_KIND,
+        category=DeviceCategory.LIGHT_LAMP,
+        properties={"is_on": "false", "brightness": "0", "color": "0xFFFFFF"},
+    )
+    await mdns.register_service(another_info)
+    logger.info("Registered")
 
     try:
         async with server:

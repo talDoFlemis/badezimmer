@@ -10,6 +10,7 @@ from zeroconf import (
     ServiceListener,
     Zeroconf,
 )
+from zeroconf._services.types import ZeroconfServiceTypes
 
 import lightlamp
 import fartdetector
@@ -88,16 +89,7 @@ class GatewayListener(ServiceListener):
         )
 
     def remove_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        info = zc.get_service_info(type_, name)
-        if info is None:
-            logger.info(
-                "Service removed, but no info available", extra={"service_name": name}
-            )
-            return
-
-        del devices[info.name]
-
-        logger.info("Service removed", extra={"service_name": name})
+        logger.info("Service removed", extra={"service_name": name, "type": type_})
 
     def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         info = zc.get_service_info(type_, name)
@@ -129,9 +121,10 @@ class GatewayListener(ServiceListener):
 async def discovery_services_job() -> None:
     listener = GatewayListener()
     # Register here all service types you want to discover
-    services = [lightlamp.SERVICE_TYPE, fartdetector.SERVICE_TYPE]
+    # services = [lightlamp.SERVICE_TYPE, fartdetector.SERVICE_TYPE]
+    services = [item for item in ZeroconfServiceTypes.find()]
     logger.info("found services", extra={"services": services})
-    ServiceBrowser(zeroconf, services, listener)
+    ServiceBrowser(zeroconf, services, listener, port=5369)
 
 
 async def startup_job():
@@ -255,6 +248,7 @@ def main():
         },
     }
 
+    print("\n".join(ZeroconfServiceTypes.find()))
     uvicorn.run(
         app="gateway:app",
         host="0.0.0.0",

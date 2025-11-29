@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
   "asyncio>=4.0.0",
+  "asyncudp>=0.11.0",
   "fastapi[standard]>=0.122.0",
   "ifaddr>=0.2.0",
   "protobuf>=6.33.1",

@@ -1,6 +1,7 @@
 import logging
 from pythonjsonlogger.json import JsonFormatter
 
+
 def setup_logger():
     logger = logging.getLogger()
     if logger.handlers:
@@ -9,4 +10,4 @@ def setup_logger():
     formatter = JsonFormatter()
     logHandler.setFormatter(formatter)
     logger.addHandler(logHandler)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)

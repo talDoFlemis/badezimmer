@@ -1,3 +1,6 @@
+import datetime
+
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -26,6 +29,12 @@ class DeviceCategory(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     LIGHT_LAMP: _ClassVar[DeviceCategory]
     FART_DETECTOR: _ClassVar[DeviceCategory]
 
+class TransportProtocol(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_PROTOCOL: _ClassVar[TransportProtocol]
+    TCP_PROTOCOL: _ClassVar[TransportProtocol]
+    UDP_PROTOCOL: _ClassVar[TransportProtocol]
+
 class MDNSType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     MDNS_A: _ClassVar[MDNSType]
@@ -42,6 +51,9 @@ ERROR_DEVICE_STATUS: DeviceStatus
 UNKNOWN_CATEGORY: DeviceCategory
 LIGHT_LAMP: DeviceCategory
 FART_DETECTOR: DeviceCategory
+UNKNOWN_PROTOCOL: TransportProtocol
+TCP_PROTOCOL: TransportProtocol
+UDP_PROTOCOL: TransportProtocol
 MDNS_A: MDNSType
 MDNS_PTR: MDNSType
 MDNS_SRV: MDNSType
@@ -64,6 +76,7 @@ class ConnectedDevice(_message.Message):
     PORT_FIELD_NUMBER: _ClassVar[int]
     PROPERTIES_FIELD_NUMBER: _ClassVar[int]
     CATEGORY_FIELD_NUMBER: _ClassVar[int]
+    TRANSPORT_PROTOCOL_FIELD_NUMBER: _ClassVar[int]
     id: str
     device_name: str
     kind: DeviceKind
@@ -72,7 +85,8 @@ class ConnectedDevice(_message.Message):
     port: int
     properties: _containers.ScalarMap[str, str]
     category: DeviceCategory
-    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ..., properties: _Optional[_Mapping[str, str]] = ..., category: _Optional[_Union[DeviceCategory, str]] = ...) -> None: ...
+    transport_protocol: TransportProtocol
+    def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ..., properties: _Optional[_Mapping[str, str]] = ..., category: _Optional[_Union[DeviceCategory, str]] = ..., transport_protocol: _Optional[_Union[TransportProtocol, str]] = ...) -> None: ...
 
 class ListConnectedDevicesRequest(_message.Message):
     __slots__ = ()
@@ -151,10 +165,10 @@ class MDNSSRVRecord(_message.Message):
     name: str
     port: int
     target: str
-    protocol: str
+    protocol: TransportProtocol
     service: str
     instance: str
-    def __init__(self, name: _Optional[str] = ..., port: _Optional[int] = ..., target: _Optional[str] = ..., protocol: _Optional[str] = ..., service: _Optional[str] = ..., instance: _Optional[str] = ...) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., port: _Optional[int] = ..., target: _Optional[str] = ..., protocol: _Optional[_Union[TransportProtocol, str]] = ..., service: _Optional[str] = ..., instance: _Optional[str] = ...) -> None: ...
 
 class MDNSTextRecord(_message.Message):
     __slots__ = ()
@@ -208,9 +222,11 @@ class MDNSQueryResponse(_message.Message):
 class MDNS(_message.Message):
     __slots__ = ()
     TRANSACTION_ID_FIELD_NUMBER: _ClassVar[int]
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     QUERY_REQUEST_FIELD_NUMBER: _ClassVar[int]
     QUERY_RESPONSE_FIELD_NUMBER: _ClassVar[int]
     transaction_id: int
+    timestamp: _timestamp_pb2.Timestamp
     query_request: MDNSQueryRequest
     query_response: MDNSQueryResponse
-    def __init__(self, transaction_id: _Optional[int] = ..., query_request: _Optional[_Union[MDNSQueryRequest, _Mapping]] = ..., query_response: _Optional[_Union[MDNSQueryResponse, _Mapping]] = ...) -> None: ...
+    def __init__(self, transaction_id: _Optional[int] = ..., timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., query_request: _Optional[_Union[MDNSQueryRequest, _Mapping]] = ..., query_response: _Optional[_Union[MDNSQueryResponse, _Mapping]] = ...) -> None: ...

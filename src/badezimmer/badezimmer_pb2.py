@@ -22,9 +22,10 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x62\x61\x64\x65zimmer.proto\x12\nbadezimmer\"\xbf\x02\n\x0f\x43onnectedDevice\x12\n\n\x02id\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12$\n\x04kind\x18\x03 \x01(\x0e\x32\x16.badezimmer.DeviceKind\x12(\n\x06status\x18\x04 \x01(\x0e\x32\x18.badezimmer.DeviceStatus\x12\x0b\n\x03ips\x18\x05 \x03(\t\x12\x0c\n\x04port\x18\x06 \x01(\x05\x12?\n\nproperties\x18\x07 \x03(\x0b\x32+.badezimmer.ConnectedDevice.PropertiesEntry\x12,\n\x08\x63\x61tegory\x18\x08 \x01(\x0e\x32\x1a.badezimmer.DeviceCategory\x1a\x31\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x89\x01\n\x1bListConnectedDevicesRequest\x12\x30\n\x0b\x66ilter_kind\x18\x01 \x01(\x0e\x32\x16.badezimmer.DeviceKindH\x00\x88\x01\x01\x12\x18\n\x0b\x66ilter_name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0e\n\x0c_filter_kindB\x0e\n\x0c_filter_name\"L\n\x1cListConnectedDevicesResponse\x12,\n\x07\x64\x65vices\x18\x01 \x03(\x0b\x32\x1b.badezimmer.ConnectedDevice\"u\n\x1aSendActuatorCommandRequest\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12:\n\x0clight_action\x18\x02 \x01(\x0b\x32\".badezimmer.LightLampActionRequestH\x00\x42\x08\n\x06\x61\x63tion\"?\n\x1bSendActuatorCommandResponse\x12\x14\n\x07message\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_message\"\x16\n\x05\x43olor\x12\r\n\x05value\x18\x01 \x01(\x07\"\x93\x01\n\x16LightLampActionRequest\x12\x14\n\x07turn_on\x18\x01 \x01(\x08H\x00\x88\x01\x01\x12\x17\n\nbrightness\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12%\n\x05\x63olor\x18\x03 \x01(\x0b\x32\x11.badezimmer.ColorH\x02\x88\x01\x01\x42\n\n\x08_turn_onB\r\n\x0b_brightnessB\x08\n\x06_color\"@\n\x0cMDNSQuestion\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\"\n\x04type\x18\x02 \x01(\x0e\x32\x14.badezimmer.MDNSType\"?\n\x10MDNSQueryRequest\x12+\n\tquestions\x18\x01 \x03(\x0b\x32\x18.badezimmer.MDNSQuestion\"6\n\x11MDNSPointerRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\"p\n\rMDNSSRVRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\x0e\n\x06target\x18\x03 \x01(\t\x12\x10\n\x08protocol\x18\x04 \x01(\t\x12\x0f\n\x07service\x18\x05 \x01(\t\x12\x10\n\x08instance\x18\x06 \x01(\t\"\x88\x01\n\x0eMDNSTextRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x38\n\x07\x65ntries\x18\x02 \x03(\x0b\x32\'.badezimmer.MDNSTextRecord.EntriesEntry\x1a.\n\x0c\x45ntriesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\",\n\x0bMDNSARecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\"\x8b\x02\n\nMDNSRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03ttl\x18\x02 \x01(\x05\x12\x13\n\x0b\x63\x61\x63he_flush\x18\x03 \x01(\x08\x12\x33\n\nptr_record\x18\x04 \x01(\x0b\x32\x1d.badezimmer.MDNSPointerRecordH\x00\x12/\n\nsrv_record\x18\x05 \x01(\x0b\x32\x19.badezimmer.MDNSSRVRecordH\x00\x12\x30\n\ntxt_record\x18\x06 \x01(\x0b\x32\x1a.badezimmer.MDNSTextRecordH\x00\x12+\n\x08\x61_record\x18\x07 \x01(\x0b\x32\x17.badezimmer.MDNSARecordH\x00\x42\x08\n\x06record\"p\n\x11MDNSQueryResponse\x12\'\n\x07\x61nswers\x18\x01 \x03(\x0b\x32\x16.badezimmer.MDNSRecord\x12\x32\n\x12\x61\x64\x64itional_records\x18\x02 \x03(\x0b\x32\x16.badezimmer.MDNSRecord\"\x96\x01\n\x04MDNS\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x07\x12\x35\n\rquery_request\x18\x02 \x01(\x0b\x32\x1c.badezimmer.MDNSQueryRequestH\x00\x12\x37\n\x0equery_response\x18\x03 \x01(\x0b\x32\x1d.badezimmer.MDNSQueryResponseH\x00\x42\x06\n\x04\x64\x61ta*B\n\nDeviceKind\x12\x10\n\x0cUNKNOWN_KIND\x10\x00\x12\x0f\n\x0bSENSOR_KIND\x10\x01\x12\x11\n\rACTUATOR_KIND\x10\x02*w\n\x0c\x44\x65viceStatus\x12\x19\n\x15UNKNOWN_DEVICE_STATUS\x10\x00\x12\x19\n\x15OFFLINE_DEVICE_STATUS\x10\x01\x12\x18\n\x14ONLINE_DEVICE_STATUS\x10\x02\x12\x17\n\x13\x45RROR_DEVICE_STATUS\x10\x03*I\n\x0e\x44\x65viceCategory\x12\x14\n\x10UNKNOWN_CATEGORY\x10\x00\x12\x0e\n\nLIGHT_LAMP\x10\x01\x12\x11\n\rFART_DETECTOR\x10\x02*@\n\x08MDNSType\x12\n\n\x06MDNS_A\x10\x00\x12\x0c\n\x08MDNS_PTR\x10\x01\x12\x0c\n\x08MDNS_SRV\x10\x02\x12\x0c\n\x08MDNS_TXT\x10\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x62\x61\x64\x65zimmer.proto\x12\nbadezimmer\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfa\x02\n\x0f\x43onnectedDevice\x12\n\n\x02id\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12$\n\x04kind\x18\x03 \x01(\x0e\x32\x16.badezimmer.DeviceKind\x12(\n\x06status\x18\x04 \x01(\x0e\x32\x18.badezimmer.DeviceStatus\x12\x0b\n\x03ips\x18\x05 \x03(\t\x12\x0c\n\x04port\x18\x06 \x01(\x05\x12?\n\nproperties\x18\x07 \x03(\x0b\x32+.badezimmer.ConnectedDevice.PropertiesEntry\x12,\n\x08\x63\x61tegory\x18\x08 \x01(\x0e\x32\x1a.badezimmer.DeviceCategory\x12\x39\n\x12transport_protocol\x18\t \x01(\x0e\x32\x1d.badezimmer.TransportProtocol\x1a\x31\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x89\x01\n\x1bListConnectedDevicesRequest\x12\x30\n\x0b\x66ilter_kind\x18\x01 \x01(\x0e\x32\x16.badezimmer.DeviceKindH\x00\x88\x01\x01\x12\x18\n\x0b\x66ilter_name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0e\n\x0c_filter_kindB\x0e\n\x0c_filter_name\"L\n\x1cListConnectedDevicesResponse\x12,\n\x07\x64\x65vices\x18\x01 \x03(\x0b\x32\x1b.badezimmer.ConnectedDevice\"u\n\x1aSendActuatorCommandRequest\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12:\n\x0clight_action\x18\x02 \x01(\x0b\x32\".badezimmer.LightLampActionRequestH\x00\x42\x08\n\x06\x61\x63tion\"?\n\x1bSendActuatorCommandResponse\x12\x14\n\x07message\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_message\"\x16\n\x05\x43olor\x12\r\n\x05value\x18\x01 \x01(\x07\"\x93\x01\n\x16LightLampActionRequest\x12\x14\n\x07turn_on\x18\x01 \x01(\x08H\x00\x88\x01\x01\x12\x17\n\nbrightness\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12%\n\x05\x63olor\x18\x03 \x01(\x0b\x32\x11.badezimmer.ColorH\x02\x88\x01\x01\x42\n\n\x08_turn_onB\r\n\x0b_brightnessB\x08\n\x06_color\"@\n\x0cMDNSQuestion\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\"\n\x04type\x18\x02 \x01(\x0e\x32\x14.badezimmer.MDNSType\"?\n\x10MDNSQueryRequest\x12+\n\tquestions\x18\x01 \x03(\x0b\x32\x18.badezimmer.MDNSQuestion\"6\n\x11MDNSPointerRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\"\x8f\x01\n\rMDNSSRVRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\x0e\n\x06target\x18\x03 \x01(\t\x12/\n\x08protocol\x18\x04 \x01(\x0e\x32\x1d.badezimmer.TransportProtocol\x12\x0f\n\x07service\x18\x05 \x01(\t\x12\x10\n\x08instance\x18\x06 \x01(\t\"\x88\x01\n\x0eMDNSTextRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x38\n\x07\x65ntries\x18\x02 \x03(\x0b\x32\'.badezimmer.MDNSTextRecord.EntriesEntry\x1a.\n\x0c\x45ntriesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\",\n\x0bMDNSARecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\"\x8b\x02\n\nMDNSRecord\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03ttl\x18\x02 \x01(\x05\x12\x13\n\x0b\x63\x61\x63he_flush\x18\x03 \x01(\x08\x12\x33\n\nptr_record\x18\x04 \x01(\x0b\x32\x1d.badezimmer.MDNSPointerRecordH\x00\x12/\n\nsrv_record\x18\x05 \x01(\x0b\x32\x19.badezimmer.MDNSSRVRecordH\x00\x12\x30\n\ntxt_record\x18\x06 \x01(\x0b\x32\x1a.badezimmer.MDNSTextRecordH\x00\x12+\n\x08\x61_record\x18\x07 \x01(\x0b\x32\x17.badezimmer.MDNSARecordH\x00\x42\x08\n\x06record\"p\n\x11MDNSQueryResponse\x12\'\n\x07\x61nswers\x18\x01 \x03(\x0b\x32\x16.badezimmer.MDNSRecord\x12\x32\n\x12\x61\x64\x64itional_records\x18\x02 \x03(\x0b\x32\x16.badezimmer.MDNSRecord\"\xc5\x01\n\x04MDNS\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x07\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x35\n\rquery_request\x18\x03 \x01(\x0b\x32\x1c.badezimmer.MDNSQueryRequestH\x00\x12\x37\n\x0equery_response\x18\x04 \x01(\x0b\x32\x1d.badezimmer.MDNSQueryResponseH\x00\x42\x06\n\x04\x64\x61ta*B\n\nDeviceKind\x12\x10\n\x0cUNKNOWN_KIND\x10\x00\x12\x0f\n\x0bSENSOR_KIND\x10\x01\x12\x11\n\rACTUATOR_KIND\x10\x02*w\n\x0c\x44\x65viceStatus\x12\x19\n\x15UNKNOWN_DEVICE_STATUS\x10\x00\x12\x19\n\x15OFFLINE_DEVICE_STATUS\x10\x01\x12\x18\n\x14ONLINE_DEVICE_STATUS\x10\x02\x12\x17\n\x13\x45RROR_DEVICE_STATUS\x10\x03*I\n\x0e\x44\x65viceCategory\x12\x14\n\x10UNKNOWN_CATEGORY\x10\x00\x12\x0e\n\nLIGHT_LAMP\x10\x01\x12\x11\n\rFART_DETECTOR\x10\x02*M\n\x11TransportProtocol\x12\x14\n\x10UNKNOWN_PROTOCOL\x10\x00\x12\x10\n\x0cTCP_PROTOCOL\x10\x01\x12\x10\n\x0cUDP_PROTOCOL\x10\x02*@\n\x08MDNSType\x12\n\n\x06MDNS_A\x10\x00\x12\x0c\n\x08MDNS_PTR\x10\x01\x12\x0c\n\x08MDNS_SRV\x10\x02\x12\x0c\n\x08MDNS_TXT\x10\x03\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,48 +36,50 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_options = b'8\001'
   _globals['_MDNSTEXTRECORD_ENTRIESENTRY']._loaded_options = None
   _globals['_MDNSTEXTRECORD_ENTRIESENTRY']._serialized_options = b'8\001'
-  _globals['_DEVICEKIND']._serialized_start=1953
-  _globals['_DEVICEKIND']._serialized_end=2019
-  _globals['_DEVICESTATUS']._serialized_start=2021
-  _globals['_DEVICESTATUS']._serialized_end=2140
-  _globals['_DEVICECATEGORY']._serialized_start=2142
-  _globals['_DEVICECATEGORY']._serialized_end=2215
-  _globals['_MDNSTYPE']._serialized_start=2217
-  _globals['_MDNSTYPE']._serialized_end=2281
-  _globals['_CONNECTEDDEVICE']._serialized_start=33
-  _globals['_CONNECTEDDEVICE']._serialized_end=352
-  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_start=303
-  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_end=352
-  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_start=355
-  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_end=492
-  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_start=494
-  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_end=570
-  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_start=572
-  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_end=689
-  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_start=691
-  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_end=754
-  _globals['_COLOR']._serialized_start=756
-  _globals['_COLOR']._serialized_end=778
-  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_start=781
-  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_end=928
-  _globals['_MDNSQUESTION']._serialized_start=930
-  _globals['_MDNSQUESTION']._serialized_end=994
-  _globals['_MDNSQUERYREQUEST']._serialized_start=996
-  _globals['_MDNSQUERYREQUEST']._serialized_end=1059
-  _globals['_MDNSPOINTERRECORD']._serialized_start=1061
-  _globals['_MDNSPOINTERRECORD']._serialized_end=1115
-  _globals['_MDNSSRVRECORD']._serialized_start=1117
-  _globals['_MDNSSRVRECORD']._serialized_end=1229
-  _globals['_MDNSTEXTRECORD']._serialized_start=1232
-  _globals['_MDNSTEXTRECORD']._serialized_end=1368
-  _globals['_MDNSTEXTRECORD_ENTRIESENTRY']._serialized_start=1322
-  _globals['_MDNSTEXTRECORD_ENTRIESENTRY']._serialized_end=1368
-  _globals['_MDNSARECORD']._serialized_start=1370
-  _globals['_MDNSARECORD']._serialized_end=1414
-  _globals['_MDNSRECORD']._serialized_start=1417
-  _globals['_MDNSRECORD']._serialized_end=1684
-  _globals['_MDNSQUERYRESPONSE']._serialized_start=1686
-  _globals['_MDNSQUERYRESPONSE']._serialized_end=1798
-  _globals['_MDNS']._serialized_start=1801
-  _globals['_MDNS']._serialized_end=1951
+  _globals['_DEVICEKIND']._serialized_start=2124
+  _globals['_DEVICEKIND']._serialized_end=2190
+  _globals['_DEVICESTATUS']._serialized_start=2192
+  _globals['_DEVICESTATUS']._serialized_end=2311
+  _globals['_DEVICECATEGORY']._serialized_start=2313
+  _globals['_DEVICECATEGORY']._serialized_end=2386
+  _globals['_TRANSPORTPROTOCOL']._serialized_start=2388
+  _globals['_TRANSPORTPROTOCOL']._serialized_end=2465
+  _globals['_MDNSTYPE']._serialized_start=2467
+  _globals['_MDNSTYPE']._serialized_end=2531
+  _globals['_CONNECTEDDEVICE']._serialized_start=66
+  _globals['_CONNECTEDDEVICE']._serialized_end=444
+  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_start=395
+  _globals['_CONNECTEDDEVICE_PROPERTIESENTRY']._serialized_end=444
+  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_start=447
+  _globals['_LISTCONNECTEDDEVICESREQUEST']._serialized_end=584
+  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_start=586
+  _globals['_LISTCONNECTEDDEVICESRESPONSE']._serialized_end=662
+  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_start=664
+  _globals['_SENDACTUATORCOMMANDREQUEST']._serialized_end=781
+  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_start=783
+  _globals['_SENDACTUATORCOMMANDRESPONSE']._serialized_end=846
+  _globals['_COLOR']._serialized_start=848
+  _globals['_COLOR']._serialized_end=870
+  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_start=873
+  _globals['_LIGHTLAMPACTIONREQUEST']._serialized_end=1020
+  _globals['_MDNSQUESTION']._serialized_start=1022
+  _globals['_MDNSQUESTION']._serialized_end=1086
+  _globals['_MDNSQUERYREQUEST']._serialized_start=1088
+  _globals['_MDNSQUERYREQUEST']._serialized_end=1151
+  _globals['_MDNSPOINTERRECORD']._serialized_start=1153
+  _globals['_MDNSPOINTERRECORD']._serialized_end=1207
+  _globals['_MDNSSRVRECORD']._serialized_start=1210
+  _globals['_MDNSSRVRECORD']._serialized_end=1353
+  _globals['_MDNSTEXTRECORD']._serialized_start=1356
+  _globals['_MDNSTEXTRECORD']._serialized_end=1492
+  _globals['_MDNSTEXTRECORD_ENTRIESENTRY']._serialized_start=1446
+  _globals['_MDNSTEXTRECORD_ENTRIESENTRY']._serialized_end=1492
+  _globals['_MDNSARECORD']._serialized_start=1494
+  _globals['_MDNSARECORD']._serialized_end=1538
+  _globals['_MDNSRECORD']._serialized_start=1541
+  _globals['_MDNSRECORD']._serialized_end=1808
+  _globals['_MDNSQUERYRESPONSE']._serialized_start=1810
+  _globals['_MDNSQUERYRESPONSE']._serialized_end=1922
+  _globals['_MDNS']._serialized_start=1925
+  _globals['_MDNS']._serialized_end=2122
 # @@protoc_insertion_point(module_scope)

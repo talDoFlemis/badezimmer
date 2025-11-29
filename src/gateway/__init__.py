@@ -3,17 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from zeroconf import (
-    IPVersion,
-    ServiceBrowser,
-    ServiceInfo,
-    ServiceListener,
-    Zeroconf,
-)
-from zeroconf._services.types import ZeroconfServiceTypes
 
-import lightlamp
-import fartdetector
 from badezimmer import (
     Color,
     ConnectedDevice,
@@ -25,106 +15,90 @@ from badezimmer import (
     DeviceCategory,
     setup_logger,
 )
+from badezimmer.badezimmer_pb2 import TransportProtocol
+from badezimmer.mdns import (
+    BadezimmerServiceListener,
+    BadezimmerMDNS,
+    SERVICE_DISCOVERY_TYPE,
+)
+from badezimmer.info import MDNSServiceInfo
+from badezimmer.browser import BadezimmerServiceBrowser
 from badezimmer.tcp import send_request
 from typing import Optional
 
-setup_logger()
 logger = logging.getLogger(__name__)
-
-zeroconf = Zeroconf(ip_version=IPVersion.V4Only)
+setup_logger(logger)
+mdns = BadezimmerMDNS()
 
 devices: dict[str, ConnectedDevice] = {}
 
 
-def generate_connected_device_from_info(info: ServiceInfo) -> ConnectedDevice:
-    properties = {}
-
-    for key, value in info.decoded_properties.items():
-        properties[key] = value if value is not None else ""
-
-    kind = properties.get("kind")
-    if kind is None:
-        kind = DeviceKind.UNKNOWN_KIND
-
-    category = properties.get("category")
-    if category is None:
-        category = DeviceCategory.UNKNOWN_CATEGORY
-
+def generate_connected_device_from_info(info: MDNSServiceInfo) -> ConnectedDevice:
     return ConnectedDevice(
-        id=info.name,
+        id=f"{info.name}@{info.type}:{info.port}",
         device_name=info.name,
-        category=category,
-        kind=kind,
-        status=DeviceStatus.ONLINE_DEVICE_STATUS,
         port=info.port,
-        ips=[str(addr) for addr in info.parsed_addresses(version=IPVersion.V4Only)],
-        properties=properties,
+        status=DeviceStatus.Name(DeviceStatus.ONLINE_DEVICE_STATUS.numerator),
+        kind=DeviceKind.Name(info.kind),
+        category=DeviceCategory.Name(info.category),
+        properties=info.properties,
+        ips=info.addresses,
+        transport_protocol=TransportProtocol.Name(info.protocol),
     )
 
 
-class GatewayListener(ServiceListener):
-    def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        info = zc.get_service_info(type_, name)
-        if info is None:
-            logger.info(
-                "Service updated, but no info available", extra={"service_name": name}
-            )
-            return
-
-        device = generate_connected_device_from_info(
-            info=info,
-        )
-
+class GatewayListener(BadezimmerServiceListener):
+    def update_service(self, mdns: BadezimmerMDNS, info: MDNSServiceInfo) -> None:
+        device = generate_connected_device_from_info(info=info)
         devices[device.id] = device
+
         logger.info(
-            "Service updated",
+            "Updating device",
             extra={
-                "id": device.id,
+                "device_id": device.id,
                 "device_name": device.device_name,
                 "ips": device.ips,
-                "kind": device.kind,
-                "port": info.port,
-                "properties": info.decoded_properties,
+                "port": device.port,
+                "properties": device.properties,
+                "status": DeviceStatus.Name(device.status),
+                "kind": DeviceKind.Name(device.kind),
+                "category": DeviceCategory.Name(device.category),
+                "protocol": TransportProtocol.Name(device.transport_protocol),
             },
         )
 
-    def remove_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        logger.info("Service removed", extra={"service_name": name, "type": type_})
+    def add_service(self, mdns: BadezimmerMDNS, info: MDNSServiceInfo) -> None:
+        device = generate_connected_device_from_info(info=info)
 
-    def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        info = zc.get_service_info(type_, name)
-
-        if info is None:
-            logger.info(
-                "Service added, but no info available", extra={"service_name": name}
-            )
-            return
-
-        device = generate_connected_device_from_info(
-            info=info,
-        )
-
+        devices[device.id] = device
         logger.info(
             "Discovered new device",
             extra={
                 "id": device.id,
                 "device_name": device.device_name,
                 "ips": device.ips,
-                "kind": device.kind,
-                "port": info.port,
-                "properties": info.decoded_properties,
+                "port": device.port,
+                "properties": device.properties,
+                "status": DeviceStatus.Name(device.status),
+                "kind": DeviceKind.Name(device.kind),
+                "category": DeviceCategory.Name(device.category),
+                "protocol": TransportProtocol.Name(device.transport_protocol),
             },
         )
-        devices[device.id] = device
+
+    def remove_service(self, mdns: BadezimmerMDNS, info: MDNSServiceInfo) -> None:
+        device = generate_connected_device_from_info(info=info)
+        del devices[device.id]
+        logger.info("Removed device", extra={"device_id": device.id})
 
 
 async def discovery_services_job() -> None:
     listener = GatewayListener()
-    # Register here all service types you want to discover
-    # services = [lightlamp.SERVICE_TYPE, fartdetector.SERVICE_TYPE]
-    services = [item for item in ZeroconfServiceTypes.find()]
-    logger.info("found services", extra={"services": services})
-    ServiceBrowser(zeroconf, services, listener, port=5369)
+    browser = BadezimmerServiceBrowser(
+        mdns=mdns, service_types=[SERVICE_DISCOVERY_TYPE], listener=listener
+    )
+    await mdns.start()
+    await browser.start()
 
 
 async def startup_job():
@@ -135,8 +109,8 @@ async def startup_job():
 
 async def shutdown_job():
     logger.info("Running shutdown job: Cleaning up resources...")
-    global zeroconf
-    zeroconf.close()
+    global mdns
+    await mdns.close()
     logger.info("Shutdown job completed.")
 
 
@@ -248,7 +222,6 @@ def main():
         },
     }
 
-    print("\n".join(ZeroconfServiceTypes.find()))
     uvicorn.run(
         app="gateway:app",
         host="0.0.0.0",
@@ -257,3 +230,7 @@ def main():
         reload=True,
         log_config=log_config,
     )
+
+
+if __name__ == "__main__":
+    main()

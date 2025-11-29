@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package badezimmer;
+import "google/protobuf/timestamp.proto";
 
 enum DeviceKind {
   UNKNOWN_KIND = 0;
@@ -21,6 +22,12 @@ enum DeviceCategory {
   FART_DETECTOR = 2;
 }
 
+enum TransportProtocol {
+  UNKNOWN_PROTOCOL = 0;
+  TCP_PROTOCOL = 1;
+  UDP_PROTOCOL = 2;
+}
+
 message ConnectedDevice {
   string id = 1;
   string device_name = 2;
@@ -30,6 +37,7 @@ message ConnectedDevice {
   int32 port = 6;
   map<string, string> properties = 7;
   DeviceCategory category = 8;
+  TransportProtocol transport_protocol = 9;
 }
 
 message ListConnectedDevicesRequest {
@@ -80,7 +88,7 @@ message MDNSSRVRecord {
   string name = 1;
   int32 port = 2;
   string target = 3;
-  string protocol = 4;
+  TransportProtocol protocol = 4;
   string service = 5;
   string instance = 6;
 }
@@ -115,8 +123,9 @@ message MDNSQueryResponse {
 
 message MDNS {
   fixed32 transaction_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
   oneof data {
-    MDNSQueryRequest query_request = 2;
-    MDNSQueryResponse query_response = 3;
+    MDNSQueryRequest query_request = 3;
+    MDNSQueryResponse query_response = 4;
   }
 }

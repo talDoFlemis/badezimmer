@@ -10,8 +10,8 @@ from badezimmer import (
 import logging
 from typing import Callable, Coroutine, Any
 
-setup_logger()
 logger = logging.getLogger(__name__)
+setup_logger(logger)
 
 
 def get_all_ips_for_adapters() -> list[bytes]:
@@ -94,10 +94,10 @@ def handle_request(
             data = await reader.read(64 * 1024)
 
             if not data:
-                logger.info(f"No data received. Closing connection with {addr!r}")
+                logger.debug(f"No data received. Closing connection with {addr!r}")
                 break
 
-            logger.info(f"Received {len(data)} bytes from {addr!r}")
+            logger.debug(f"Received {len(data)} bytes from {addr!r}")
             response = SendActuatorCommandResponse()
 
             try:
@@ -115,14 +115,14 @@ def handle_request(
             except Exception:
                 logger.exception(f"Error processing request from {addr!r}")
 
-            logger.info("Response", extra={"response": response})
+            logger.debug("Response", extra={"response": response})
             response_bytes = prepare_protobuf_request(response)
 
             writer.write(response_bytes)
             await writer.drain()
-            logger.info("Sent bytes", extra={"bytes_sent": len(response_bytes)})
+            logger.debug("Sent bytes", extra={"bytes_sent": len(response_bytes)})
 
-        logger.info(f"Client {addr!r} disconnected")
+        logger.debug(f"Client {addr!r} disconnected")
         writer.close()
         await writer.wait_closed()
 

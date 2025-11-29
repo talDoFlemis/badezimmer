@@ -1,5 +1,10 @@
 import logging
 import re
+import socket
+import asyncio
+import random
+import time
+import threading
 
 import asyncudp
 from zeroconf import (
@@ -27,10 +32,6 @@ from badezimmer.tcp import (
     get_protobuf_data,
     get_all_ips_strings_for_adapters,
 )
-import asyncio
-import random
-import time
-import threading
 
 setup_logger()
 logger = logging.getLogger(__name__)
@@ -54,10 +55,14 @@ def current_time_millis() -> float:
 class EntryRecord:
     def __init__(self, record: MDNSRecord):
         self.record = record
-        self.expires_at = record.ttl + current_time_millis()
+        self.expires_at = (record.ttl * 1000) + current_time_millis()
 
     def expired(self) -> bool:
         return self.expires_at < current_time_millis()
+
+
+def generate_domain_name(entry: str, instance_name: str) -> str:
+    return f"{instance_name}.{entry}"
 
 
 class MDNSServiceInfo:
@@ -66,33 +71,38 @@ class MDNSServiceInfo:
         name: str,
         type: str,
         port: int,
-        kind: DeviceKind,
-        category: DeviceCategory,
+        kind: DeviceKind | int,
+        category: DeviceCategory | int,
         properties: dict[str, str],
+        addresses: list[str] | None = None,
         ttl: int = DEFAULT_TTL,
         allow_name_change: bool = True,
     ):
         self.name = name
         self.type = type
         self.category = category
-        self.port = port
+        self.port: int = port
         self.properties = properties
         self.kind = kind
         self.ttl = ttl
         self.allow_name_change = allow_name_change
-        self.ips = get_all_ips_strings_for_adapters()
+        if addresses is not None:
+            self.ips = addresses
+        else:
+            self.ips = get_all_ips_strings_for_adapters()
 
     def to_records(self) -> list[MDNSRecord]:
         records = []
+
+        domain_name = generate_domain_name(self.type, self.name)
+
         ptr_record = MDNSRecord(
             name=self.type,
             ttl=self.ttl,
             cache_flush=False,
-            ptr_record=MDNSPointerRecord(name=self.name, domain_name=self.name),
+            ptr_record=MDNSPointerRecord(name=self.type, domain_name=domain_name),
         )
         records.append(ptr_record)
-
-        domain_name = generate_domain_name(self.type, self.name)
 
         # Add IPs as A records
         for ip in self.ips:
@@ -105,25 +115,31 @@ class MDNSServiceInfo:
             records.append(record)
 
         domain_name_parts = domain_name.split(".")
+        srv_name = domain_name_parts[-1]
+        protocol = domain_name_parts[-2]
+        service = domain_name_parts[-3]
+        instance = domain_name_parts[-4]
+
         srv_record = MDNSRecord(
             name=domain_name,
             ttl=self.ttl,
             cache_flush=True,
             srv_record=MDNSSRVRecord(
-                name=domain_name_parts[-1],
-                protocol=domain_name_parts[-2],
-                service=domain_name_parts[-3],
-                instance=domain_name_parts[-4],
+                name=srv_name,
+                protocol=protocol,
+                service=service,
+                instance=instance,
                 port=self.port,
                 target=domain_name,
             ),
         )
+
         records.append(srv_record)
 
         txt_record_entries: dict[str, str] = {}
 
-        txt_record_entries["kind"] = DeviceKind.Name(self.kind.numerator)
-        txt_record_entries["category"] = DeviceCategory.Name(self.category.numerator)
+        txt_record_entries["kind"] = DeviceKind.Name(self.kind)
+        txt_record_entries["category"] = DeviceCategory.Name(self.category)
         for key, value in self.properties.items():
             txt_record_entries[key] = value
 
@@ -138,6 +154,93 @@ class MDNSServiceInfo:
         )
         records.append(txt_record)
         return records
+
+    @staticmethod
+    def from_records(
+        records: list[MDNSRecord],
+    ) -> "list[MDNSServiceInfo] | None":
+        if len(records) == 0:
+            return None
+
+        ptr_records: dict[str, list[MDNSPointerRecord]] = {}
+        srv_records: dict[str, MDNSSRVRecord] = {}
+        txt_records: dict[str, MDNSTextRecord] = {}
+        a_records: dict[str, list[MDNSARecord]] = {}
+
+        for entry in records:
+            if entry.WhichOneof("record") == "ptr_record":
+                ptr_records.setdefault(entry.ptr_record.domain_name, []).append(
+                    entry.ptr_record
+                )
+
+        for record in records:
+            if ptr_records.get(record.name) is None:
+                continue
+
+            field = record.WhichOneof("record")
+            if field not in ["srv_record", "txt_record", "a_record"]:
+                continue
+
+            if field == "srv_record":
+                srv_records[record.name] = record.srv_record
+            elif field == "txt_record":
+                txt_records[record.name] = record.txt_record
+            elif field == "a_record":
+                a_records.setdefault(record.name, []).append(record.a_record)
+
+        infos = []
+
+        for record in [
+            record for records_list in ptr_records.values() for record in records_list
+        ]:
+            entry_name = record.domain_name
+            instance_name = entry_name.split(".")[0]
+
+            info = MDNSServiceInfo(
+                name=instance_name,
+                type=record.name,
+                port=0,
+                kind=DeviceKind.UNKNOWN_KIND,
+                category=DeviceCategory.UNKNOWN_CATEGORY,
+                properties={},
+            )
+
+            for ips in a_records.get(entry_name, []):
+                info.ips.append(ips.address)
+
+            if entry_name in srv_records:
+                info.port = srv_records[entry_name].port
+
+            for key, value in txt_records[entry_name].entries.items():
+                info.properties[key] = value
+                continue
+
+            kind_str = info.properties.get("kind", "UNKNOWN_KIND")
+            category_str = info.properties.get("category", "UNKNOWN_CATEGORY")
+
+            try:
+                info.kind = DeviceKind.Value(kind_str)
+            except ValueError:
+                info.kind = DeviceKind.UNKNOWN_KIND
+
+            try:
+                info.category = DeviceCategory.Value(category_str)
+            except ValueError:
+                info.category = DeviceCategory.UNKNOWN_CATEGORY
+
+            except Exception as e:
+                logger.debug(f"Failed to parse service info from records: {e}")
+                continue
+
+            infos.append(info)
+
+        return infos
+
+
+class BadezimmerServiceListener:
+    def add_service(self, mdns: "BadezimmerMDNS", info: MDNSServiceInfo) -> None: ...
+    def remove_service(self, mdns: "BadezimmerMDNS", info: MDNSServiceInfo) -> None: ...
+    def update_service(self, mdns: "BadezimmerMDNS", info: MDNSServiceInfo) -> None: ...
 
 
 class BadezimmerMDNS:
@@ -156,12 +259,177 @@ class BadezimmerMDNS:
         self.query_timeout_in_millis = query_timeout_in_millis
         self.tiebreaking_max_drift_in_millis = tiebreaking_max_drift_in_millis
         self.random = random.Random(random_seed)
-        self.cache: dict[str, list[EntryRecord]] = {}
-        self.services: dict[str, MDNSServiceInfo] = {}
-        self.loop: asyncio.AbstractEventLoop | None = None
-        self._loop_thread: threading.Thread | None = None
+        self.ptr_records: dict[str, list[EntryRecord]] = {}
+        self.non_ptr_records: dict[str, dict[MDNSType, list[EntryRecord]]] = {}
+        self.listeners: list[BadezimmerServiceListener] = []
+        self.sock: asyncudp.Socket | None = None
+        self._recv_task: asyncio.Task | None = None
+
+        self._loop = asyncio.new_event_loop()
+        self._thread = threading.Thread(target=self._run_loop, daemon=True)
+        self._thread.start()
+
+        future = asyncio.run_coroutine_threadsafe(self._start_async(), self._loop)
+        try:
+            future.result(timeout=1)
+        except Exception as e:
+            logger.error(f"Failed to start async loop: {e}")
+
+    def _run_loop(self):
+        asyncio.set_event_loop(self._loop)
+        self._loop.run_forever()
+
+    def add_listener(self, listener: BadezimmerServiceListener) -> None:
+        self.listeners.append(listener)
+
+    async def _start_async(self) -> None:
+        if self.sock is None:
+            self.sock = await asyncudp.create_socket(
+                local_addr=("0.0.0.0", MULTICAST_PORT),
+                reuse_port=True,
+            )
+            # Join multicast group
+            sock_obj = self.sock._transport.get_extra_info("socket")
+            sock_obj.setsockopt(
+                socket.IPPROTO_IP,
+                socket.IP_ADD_MEMBERSHIP,
+                socket.inet_aton(_MULTICAST_IP) + socket.inet_aton("0.0.0.0"),
+            )
+            self._recv_task = asyncio.create_task(self._recv_loop())
+            logger.info("BadezimmerMDNS started listening on multicast port")
+
+    async def close(self) -> None:
+        if self._loop.is_running():
+            future = asyncio.run_coroutine_threadsafe(
+                self._close_internal(), self._loop
+            )
+            try:
+                await asyncio.wrap_future(future)
+            except Exception as e:
+                logger.error(f"Error during close: {e}")
+
+            self._loop.call_soon_threadsafe(self._loop.stop)
+
+        if self._thread.is_alive():
+            self._thread.join()
+
+    async def _close_internal(self) -> None:
+        if self._recv_task:
+            self._recv_task.cancel()
+            try:
+                await self._recv_task
+            except asyncio.CancelledError:
+                pass
+        if self.sock:
+            self.sock.close()
+
+    async def _recv_loop(self) -> None:
+        while True:
+            try:
+                if self.sock is None:
+                    break
+                data, addr = await self.sock.recvfrom()
+                # Ignore own packets if possible, or handle them gracefully
+                # For now, we process everything
+                await self._handle_packet(data, addr)
+            except Exception as e:
+                logger.error(f"Error in receive loop: {e}")
+
+    async def _handle_packet(self, data: bytes, addr: tuple[str, int]) -> None:
+        try:
+            proto_bytes = get_protobuf_data(data)
+            packet = MDNS()
+            packet.ParseFromString(proto_bytes)
+
+            if packet.WhichOneof("data") == "query_request":
+                await self._handle_query(packet.query_request, addr)
+            elif packet.WhichOneof("data") == "query_response":
+                await self._handle_response(packet.query_response, addr)
+        except Exception as e:
+            logger.debug(f"Failed to handle packet from {addr}: {e}")
+
+    async def _handle_query(
+        self, query: MDNSQueryRequest, addr: tuple[str, int]
+    ) -> None:
+        ptr_records: list[MDNSRecord] = []
+
+        for question in query.questions:
+            if question.name == SERVICE_DISCOVERY_TYPE:
+                records = [
+                    entry.record
+                    for entries in self.ptr_records.values()
+                    for entry in entries
+                ]
+                ptr_records.extend(records)
+            else:
+                records = self.ptr_records.get(question.name)
+                if records is None:
+                    continue
+
+                ptr_records.extend([entry.record for entry in records])
+
+        if len(ptr_records) == 0:
+            return
+
+        additional_records: list[MDNSRecord] = []
+
+        for record in ptr_records:
+            non_ptr_records_entries = self.non_ptr_records.get(
+                record.ptr_record.domain_name, {}
+            )
+            additional_records.extend(
+                [
+                    entry.record
+                    for entries in non_ptr_records_entries.values()
+                    for entry in entries
+                ]
+            )
+
+        await self._send_response(
+            MDNSQueryResponse(
+                answers=ptr_records, additional_records=additional_records
+            )
+        )
+
+    async def _send_response(self, response: MDNSQueryResponse) -> None:
+        packet = MDNS(transaction_id=0x0000, query_response=response)
+        raw_bytes = prepare_protobuf_request(packet)
+        if self.sock:
+            self.sock.sendto(raw_bytes, (_MULTICAST_IP, MULTICAST_PORT))
+
+    async def _handle_response(
+        self, response: MDNSQueryResponse, addr: tuple[str, int]
+    ) -> None:
+        records: list[MDNSRecord] = []
+        records.extend(response.answers)
+        records.extend(response.additional_records)
+
+        infos = MDNSServiceInfo.from_records(records)
+        if infos is None:
+            return
+
+        for info in infos:
+            await self.__add_service(info)
+
+        for listener in self.listeners:
+            for info in infos:
+                listener.update_service(self, info)
 
     async def register_service(self, info: MDNSServiceInfo):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop == self._loop:
+            await self._register_service_impl(info)
+        else:
+            future = asyncio.run_coroutine_threadsafe(
+                self._register_service_impl(info), self._loop
+            )
+            await asyncio.wrap_future(future)
+
+    async def _register_service_impl(self, info: MDNSServiceInfo):
         logger.debug(
             "Registering service with on Badezimmer Network...",
             extra={
@@ -231,7 +499,30 @@ class BadezimmerMDNS:
         )
 
     async def __add_service(self, info: MDNSServiceInfo) -> None:
-        self.services[info.name] = info
+        self.ptr_records.setdefault(info.type, []).append(
+            EntryRecord(
+                MDNSRecord(
+                    name=info.type,
+                    ttl=info.ttl,
+                    cache_flush=False,
+                    ptr_record=MDNSPointerRecord(
+                        name=info.type,
+                        domain_name=generate_domain_name(info.type, info.name),
+                    ),
+                )
+            )
+        )
+
+        domain_name = generate_domain_name(info.type, info.name)
+
+        if self.non_ptr_records.get(domain_name) is None:
+            self.non_ptr_records[domain_name] = {}
+
+        for record in info.to_records()[1:]:
+            field = record.WhichOneof("record")
+            self.non_ptr_records[domain_name].setdefault(field, []).append(
+                EntryRecord(record)
+            )
 
     async def __broadcast_service(self, info: MDNSServiceInfo) -> None:
         records = info.to_records()
@@ -239,14 +530,14 @@ class BadezimmerMDNS:
         additional_records = records[1:]
 
         response = MDNSQueryResponse(
-            answer=ptr_record, additional_records=additional_records
+            answers=[ptr_record], additional_records=additional_records
         )
 
         packet = MDNS(transaction_id=0x0000, query_response=response)
 
         raw_bytes = prepare_protobuf_request(packet)
-        sock = await asyncudp.create_socket(remote_addr=(_MULTICAST_IP, MULTICAST_PORT))
-        sock.sendto(raw_bytes)
+        if self.sock:
+            self.sock.sendto(raw_bytes, (_MULTICAST_IP, MULTICAST_PORT))
 
     async def __query_service(
         self, type_: str, query_timeout_in_millis: int
@@ -260,34 +551,9 @@ class BadezimmerMDNS:
 
         try:
             logger.debug("Sending query request to multicast address")
-
-            sock = await asyncudp.create_socket(
-                remote_addr=(_MULTICAST_IP, MULTICAST_PORT)
-            )
-            sock.sendto(raw_bytes)
-
-            try:
-                async with asyncio.timeout(query_timeout_in_millis / 1000):
-                    resp_raw_bytes = await sock.recvfrom()
-                proto_bytes = get_protobuf_data(resp_raw_bytes)
-            except TimeoutError:
-                logger.error("Timeout while waiting for response on send query")
-                return None
-
-            packet = MDNS()
-            packet.ParseFromString(proto_bytes)
-
-            if packet.WhichOneof("data") != "query_response":
-                raise ValueError("Invalid packet received")
-
-            response = packet.query_response
-
-            # Add answers to cache
-            self.__add_entry_record(type_, response.answer)
-            [
-                self.__add_entry_record(type_, record)
-                for record in response.additional_records
-            ]
+            if self.sock:
+                self.sock.sendto(raw_bytes, (_MULTICAST_IP, MULTICAST_PORT))
+                await asyncio.sleep(query_timeout_in_millis / 1000)
 
         except Exception as e:
             logger.error(f"Error sending query request to multicast address: {e}")
@@ -298,16 +564,13 @@ class BadezimmerMDNS:
     async def __check_if_service_is_defined(
         self, entry_name: str, instance_name: str
     ) -> bool:
-        entry_records = self.cache.get(entry_name)
+        entry_records = self.ptr_records.get(entry_name)
 
         if entry_records is None:
             return False
 
         for entry_record in reversed(entry_records):
-            if (
-                entry_record.record.WhichOneof("record") != "ptr_record"
-                or entry_record.expired()
-            ):
+            if entry_record.expired():
                 continue
 
             ptr_record = entry_record.record.ptr_record
@@ -317,10 +580,3 @@ class BadezimmerMDNS:
                 return True
 
         return False
-
-    def __add_entry_record(self, entry_name: str, record: MDNSRecord) -> None:
-        self.cache.setdefault(entry_name, []).append(EntryRecord(record))
-
-
-def generate_domain_name(entry: str, instance_name: str) -> str:
-    return f"{instance_name}.{entry}"

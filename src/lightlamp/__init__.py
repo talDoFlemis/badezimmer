@@ -35,7 +35,7 @@ PROPERTIES: dict[str | bytes, str | bytes | None] = {
 setup_logger()
 logger = logging.getLogger(__name__)
 
-zeroconf = Zeroconf(ip_version=IPVersion.V4Only)
+# zeroconf = Zeroconf(ip_version=IPVersion.V4Only)
 
 info = ServiceInfo(
     SERVICE_TYPE,
@@ -75,7 +75,7 @@ async def execute(request: SendActuatorCommandRequest) -> SendActuatorCommandRes
         msg += "No change. "
 
     info._set_properties(PROPERTIES)
-    zeroconf.update_service(info)
+    # zeroconf.update_service(info)
 
     return SendActuatorCommandResponse(message=msg.strip())
 
@@ -91,7 +91,7 @@ async def register(port: int):
     )
 
     info.port = port
-    zeroconf.register_service(info, allow_name_change=True)
+    # zeroconf.register_service(info, allow_name_change=True)
     logger.info("Service registered.")
 
 
@@ -102,7 +102,7 @@ async def main_server(port: int):
     mdns = BadezimmerMDNS()
     another_info = MDNSServiceInfo(
         name="tubias",
-        type="tubias._tcp.local.",
+        type="tubias._tcp.local",
         port=port,
         kind=DeviceKind.SENSOR_KIND,
         category=DeviceCategory.LIGHT_LAMP,
@@ -119,7 +119,7 @@ async def main_server(port: int):
     except asyncio.CancelledError:
         logger.info("Task cancelled. Performing cleanup...")
         logger.info("Unregistering service...")
-        zeroconf.unregister_service(info)
+        # zeroconf.unregister_service(info)
         logger.info("Service unregistered.")
 
 

@@ -109,7 +109,7 @@ message MDNSRecord {
 }
 
 message MDNSQueryResponse {
-  MDNSRecord answer = 1;
+  repeated MDNSRecord answers = 1;
   repeated MDNSRecord additional_records = 2;
 }
 

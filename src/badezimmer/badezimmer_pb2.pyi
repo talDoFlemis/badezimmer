@@ -199,11 +199,11 @@ class MDNSRecord(_message.Message):
 
 class MDNSQueryResponse(_message.Message):
     __slots__ = ()
-    ANSWER_FIELD_NUMBER: _ClassVar[int]
+    ANSWERS_FIELD_NUMBER: _ClassVar[int]
     ADDITIONAL_RECORDS_FIELD_NUMBER: _ClassVar[int]
-    answer: MDNSRecord
+    answers: _containers.RepeatedCompositeFieldContainer[MDNSRecord]
     additional_records: _containers.RepeatedCompositeFieldContainer[MDNSRecord]
-    def __init__(self, answer: _Optional[_Union[MDNSRecord, _Mapping]] = ..., additional_records: _Optional[_Iterable[_Union[MDNSRecord, _Mapping]]] = ...) -> None: ...
+    def __init__(self, answers: _Optional[_Iterable[_Union[MDNSRecord, _Mapping]]] = ..., additional_records: _Optional[_Iterable[_Union[MDNSRecord, _Mapping]]] = ...) -> None: ...
 
 class MDNS(_message.Message):
     __slots__ = ()

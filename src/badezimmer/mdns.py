@@ -5,6 +5,7 @@ import asyncio
 import random
 import time
 import threading
+import collections
 
 import asyncudp
 from zeroconf import (
@@ -264,6 +265,7 @@ class BadezimmerMDNS:
         self.listeners: list[BadezimmerServiceListener] = []
         self.sock: asyncudp.Socket | None = None
         self._recv_task: asyncio.Task | None = None
+        self._sent_packets: collections.deque = collections.deque(maxlen=50)
 
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._run_loop, daemon=True)
@@ -329,11 +331,28 @@ class BadezimmerMDNS:
                 if self.sock is None:
                     break
                 data, addr = await self.sock.recvfrom()
+
+                # Ignore own packets
+                if data in self._sent_packets:
+                    continue
+
                 # Ignore own packets if possible, or handle them gracefully
                 # For now, we process everything
                 await self._handle_packet(data, addr)
             except Exception as e:
                 logger.error(f"Error in receive loop: {e}")
+
+    def _send_packet(self, packet: MDNS) -> None:
+        if self.sock is None:
+            return
+
+        # Assign a random transaction ID to ensure uniqueness of the packet
+        # This helps distinguishing our packet from others even if payload is similar
+        packet.transaction_id = self.random.randint(1, 65535)
+
+        raw_bytes = prepare_protobuf_request(packet)
+        self._sent_packets.append(raw_bytes)
+        self.sock.sendto(raw_bytes, (_MULTICAST_IP, MULTICAST_PORT))
 
     async def _handle_packet(self, data: bytes, addr: tuple[str, int]) -> None:
         try:
@@ -392,10 +411,8 @@ class BadezimmerMDNS:
         )
 
     async def _send_response(self, response: MDNSQueryResponse) -> None:
-        packet = MDNS(transaction_id=0x0000, query_response=response)
-        raw_bytes = prepare_protobuf_request(packet)
-        if self.sock:
-            self.sock.sendto(raw_bytes, (_MULTICAST_IP, MULTICAST_PORT))
+        packet = MDNS(query_response=response)
+        self._send_packet(packet)
 
     async def _handle_response(
         self, response: MDNSQueryResponse, addr: tuple[str, int]
@@ -458,11 +475,24 @@ class BadezimmerMDNS:
         now = next_time = current_time_millis()
 
         while current_attempt < self.tiebreaking_attempts:
-            logger.info("Tiebreaking attempt", extra={"attempt": current_attempt + 1})
+            logger.info(
+                "Tiebreaking attempt",
+                extra={
+                    "attempt": current_attempt + 1,
+                    "current_name": current_instance_name,
+                },
+            )
 
             while await self.__check_if_service_is_defined(
                 entry_name=info.type, instance_name=current_instance_name
             ):
+                logger.info(
+                    "Service name conflict detected during tiebreaking",
+                    extra={
+                        "service_type": info.type,
+                        "service_name": current_instance_name,
+                    },
+                )
                 if not info.allow_name_change:
                     logger.exception(
                         "Service is already defined checking if allow_name_change"
@@ -533,11 +563,8 @@ class BadezimmerMDNS:
             answers=[ptr_record], additional_records=additional_records
         )
 
-        packet = MDNS(transaction_id=0x0000, query_response=response)
-
-        raw_bytes = prepare_protobuf_request(packet)
-        if self.sock:
-            self.sock.sendto(raw_bytes, (_MULTICAST_IP, MULTICAST_PORT))
+        packet = MDNS(query_response=response)
+        self._send_packet(packet)
 
     async def __query_service(
         self, type_: str, query_timeout_in_millis: int
@@ -545,15 +572,12 @@ class BadezimmerMDNS:
         question = MDNSQuestion(name=type_, type=MDNSType.MDNS_PTR)
         query = MDNSQueryRequest(questions=[question])
 
-        packet = MDNS(transaction_id=0x0000, query_request=query)
-
-        raw_bytes = prepare_protobuf_request(packet)
+        packet = MDNS(query_request=query)
 
         try:
             logger.debug("Sending query request to multicast address")
-            if self.sock:
-                self.sock.sendto(raw_bytes, (_MULTICAST_IP, MULTICAST_PORT))
-                await asyncio.sleep(query_timeout_in_millis / 1000)
+            self._send_packet(packet)
+            await asyncio.sleep(query_timeout_in_millis / 1000)
 
         except Exception as e:
             logger.error(f"Error sending query request to multicast address: {e}")

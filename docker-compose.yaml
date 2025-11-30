@@ -1,5 +1,6 @@
 services:
   gateway:
+    image: ghcr.io/taldoflemis/badezimmer/python-services
     build:
       context: .
       dockerfile: Dockerfile
@@ -8,12 +9,14 @@ services:
     entrypoint: "gateway"
 
   fartdetector:
+    image: ghcr.io/taldoflemis/badezimmer/python-services
     build:
       context: .
       dockerfile: Dockerfile
     entrypoint: "fartdetector"
 
   lightlamp:
+    image: ghcr.io/taldoflemis/badezimmer/python-services
     build:
       context: .
       dockerfile: Dockerfile

@@ -1,4 +1,6 @@
 import logging
+import signal
+import sys
 from badezimmer import (
     setup_logger,
     SendActuatorCommandResponse,
@@ -96,22 +98,20 @@ async def main_server(port: int):
 
     try:
         await server.serve_forever()
-    except Exception as e:
-        logger.error(f"Server error: {e}")
-    except asyncio.CancelledError:
-        logger.info("Task cancelled. Performing cleanup...")
-        logger.info("Unregistering service...")
-        await mdns.unregister_service(info)
-        await mdns.close()
-        logger.info("Service unregistered.")
+    finally:
+        # Quick cleanup without waiting or logging
+        server.close()
+        if mdns.sock:
+            mdns.sock.close()
 
 
 def main():
     port = get_random_available_tcp_port()
+
     try:
         asyncio.run(main_server(port))
     except KeyboardInterrupt:
-        logger.info("Server stopped manually.")
+        pass
 
 
 if __name__ == "__main__":

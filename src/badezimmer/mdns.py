@@ -622,6 +622,7 @@ class BadezimmerMDNS:
     async def _tiebreaker(self, info: MDNSServiceInfo) -> None:
         current_attempt = 0
         next_instance_num = 2
+
         while current_attempt < self.tiebreaking_attempts:
             is_conflict = await self._is_service_defined(info.type, info.name)
             if is_conflict:

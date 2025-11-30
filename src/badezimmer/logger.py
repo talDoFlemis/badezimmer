@@ -3,23 +3,31 @@ import sys
 from pythonjsonlogger.json import JsonFormatter
 
 
+class SafeStreamHandler(logging.StreamHandler):
+    def emit(self, record):
+        try:
+            super().emit(record)
+        except (BrokenPipeError, OSError, ValueError):
+            pass
+        except Exception:
+            pass
+
+    def flush(self):
+        try:
+            super().flush()
+        except (BrokenPipeError, OSError, ValueError):
+            pass
+
+
 def setup_logger(
     logger: logging.Logger,
     level: int = logging.DEBUG,
     include_extra_fields: bool = False,
 ):
-    """
-    Configure a logger with comprehensive logging features.
-
-    Args:
-        logger: The logger instance to configure
-        level: The logging level (default: DEBUG)
-        include_extra_fields: Whether to include extended fields like process info
-    """
     if logger.handlers:
         return
 
-    logHandler = logging.StreamHandler(sys.stdout)
+    logHandler = SafeStreamHandler(sys.stdout)
 
     # Define the format with all the good logging fields
     log_format = [

@@ -12,6 +12,10 @@ from badezimmer import (
     LightLampActionRequest,
     SendActuatorCommandRequest,
     SendActuatorCommandResponse,
+    BadezimmerRequest,
+    BadezimmerResponse,
+    ErrorDetails,
+    ErrorCode,
     DeviceCategory,
     setup_logger,
 )
@@ -174,21 +178,28 @@ async def update_light(device_id: str, request_body: UpdateLightRequest):
 
     device = devices[device_id]
 
-    request = LightLampActionRequest(
-        turn_on=request_body.turn_on,
-        brightness=request_body.brightness,
-        color=Color(value=request_body.color),
+    request = BadezimmerRequest(
+        send_actuator_command=SendActuatorCommandRequest(
+            device_id=device.id,
+            light_action=LightLampActionRequest(
+                turn_on=request_body.turn_on,
+                brightness=request_body.brightness,
+                color=Color(value=request_body.color),
+            ),
+        ),
     )
 
-    response_bytes = await send_request(
-        list(device.ips),
-        device.port,
-        SendActuatorCommandRequest(device_id=device.id, light_action=request),
-    )
+    response_bytes = await send_request(list(device.ips), device.port, request=request)
 
-    response = SendActuatorCommandResponse.FromString(response_bytes)
+    response = BadezimmerResponse.FromString(response_bytes)
+    if response.WhichOneof("response") == "error":
+        error = response.error
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error from device: {error.code} - {error.message}",
+        )
 
-    return UpdateLightResponse(message=response.message)
+    return UpdateLightResponse(message=response.send_actuator_command_response.message)
 
 
 def main():

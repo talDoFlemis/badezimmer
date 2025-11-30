@@ -1,11 +1,12 @@
 import logging
 from badezimmer import (
     setup_logger,
-    SendActuatorCommandResponse,
-    SendActuatorCommandRequest,
     DeviceKind,
     DeviceCategory,
     TransportProtocol,
+    BadezimmerRequest,
+    BadezimmerResponse,
+    Empty,
 )
 from badezimmer.tcp import (
     get_random_available_tcp_port,
@@ -41,8 +42,8 @@ info = MDNSServiceInfo(
 )
 
 
-async def execute(_request: SendActuatorCommandRequest) -> SendActuatorCommandResponse:
-    return SendActuatorCommandResponse(message="No actuator commands supported.")
+async def execute(_request: BadezimmerRequest) -> BadezimmerResponse:
+    return BadezimmerResponse(empty=Empty())
 
 
 async def generate_random_data():

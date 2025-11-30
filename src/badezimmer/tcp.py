@@ -4,11 +4,15 @@ import ifaddr
 import asyncio
 from badezimmer import (
     setup_logger,
-    SendActuatorCommandRequest,
-    SendActuatorCommandResponse,
+    BadezimmerRequest,
+    BadezimmerResponse,
+    ErrorDetails,
+    ErrorCode,
 )
 import logging
 from typing import Callable, Coroutine, Any
+
+from badezimmer.badezimmer_pb2 import SendActuatorCommandResponse
 
 logger = logging.getLogger(__name__)
 setup_logger(logger)
@@ -83,7 +87,7 @@ def get_protobuf_data(data: bytes) -> bytes:
 
 def handle_request(
     fn: Callable[
-        [SendActuatorCommandRequest], Coroutine[Any, Any, SendActuatorCommandResponse]
+        [BadezimmerRequest], Coroutine[Any, Any, BadezimmerResponse]
     ],
 ):
     async def inner(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
@@ -98,22 +102,15 @@ def handle_request(
                 break
 
             logger.debug(f"Received {len(data)} bytes from {addr!r}")
-            response = SendActuatorCommandResponse()
+            response = BadezimmerResponse()
 
             try:
                 proto_raw = get_protobuf_data(data)
-                request = SendActuatorCommandRequest.FromString(proto_raw)
+                request = BadezimmerRequest.FromString(proto_raw)
                 response = await fn(request)
-            except ValueError as e:
-                logger.info(
-                    "ValueError processing request from",
-                    extra={
-                        "addr": addr,
-                    },
-                )
-                response = SendActuatorCommandResponse(message=str(e))
-            except Exception:
+            except Exception as e:
                 logger.exception(f"Error processing request from {addr!r}")
+                response = BadezimmerResponse(error=ErrorDetails(code=ErrorCode.UNKNOWN_ERROR, message=str(e)))
 
             logger.debug("Response", extra={"response": response})
             response_bytes = prepare_protobuf_request(response)

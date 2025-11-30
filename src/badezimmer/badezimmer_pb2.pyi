@@ -1,6 +1,7 @@
 import datetime
 
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf import empty_pb2 as _empty_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -35,6 +36,14 @@ class TransportProtocol(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     TCP_PROTOCOL: _ClassVar[TransportProtocol]
     UDP_PROTOCOL: _ClassVar[TransportProtocol]
 
+class ErrorCode(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_ERROR: _ClassVar[ErrorCode]
+    DEVICE_NOT_FOUND: _ClassVar[ErrorCode]
+    INVALID_COMMAND: _ClassVar[ErrorCode]
+    DEVICE_OFFLINE: _ClassVar[ErrorCode]
+    VALIDATION_ERROR: _ClassVar[ErrorCode]
+
 class MDNSType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     MDNS_A: _ClassVar[MDNSType]
@@ -54,6 +63,11 @@ FART_DETECTOR: DeviceCategory
 UNKNOWN_PROTOCOL: TransportProtocol
 TCP_PROTOCOL: TransportProtocol
 UDP_PROTOCOL: TransportProtocol
+UNKNOWN_ERROR: ErrorCode
+DEVICE_NOT_FOUND: ErrorCode
+INVALID_COMMAND: ErrorCode
+DEVICE_OFFLINE: ErrorCode
+VALIDATION_ERROR: ErrorCode
 MDNS_A: MDNSType
 MDNS_PTR: MDNSType
 MDNS_SRV: MDNSType
@@ -109,6 +123,45 @@ class SendActuatorCommandRequest(_message.Message):
     device_id: str
     light_action: LightLampActionRequest
     def __init__(self, device_id: _Optional[str] = ..., light_action: _Optional[_Union[LightLampActionRequest, _Mapping]] = ...) -> None: ...
+
+class ErrorDetails(_message.Message):
+    __slots__ = ()
+    class MetadataEntry(_message.Message):
+        __slots__ = ()
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    code: ErrorCode
+    message: str
+    metadata: _containers.ScalarMap[str, str]
+    def __init__(self, code: _Optional[_Union[ErrorCode, str]] = ..., message: _Optional[str] = ..., metadata: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class BadezimmerRequest(_message.Message):
+    __slots__ = ()
+    EMPTY_FIELD_NUMBER: _ClassVar[int]
+    LIST_DEVICES_FIELD_NUMBER: _ClassVar[int]
+    SEND_ACTUATOR_COMMAND_FIELD_NUMBER: _ClassVar[int]
+    empty: _empty_pb2.Empty
+    list_devices: ListConnectedDevicesRequest
+    send_actuator_command: SendActuatorCommandRequest
+    def __init__(self, empty: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., list_devices: _Optional[_Union[ListConnectedDevicesRequest, _Mapping]] = ..., send_actuator_command: _Optional[_Union[SendActuatorCommandRequest, _Mapping]] = ...) -> None: ...
+
+class BadezimmerResponse(_message.Message):
+    __slots__ = ()
+    EMPTY_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    LIST_DEVICES_RESPONSE_FIELD_NUMBER: _ClassVar[int]
+    SEND_ACTUATOR_COMMAND_RESPONSE_FIELD_NUMBER: _ClassVar[int]
+    empty: _empty_pb2.Empty
+    error: ErrorDetails
+    list_devices_response: ListConnectedDevicesResponse
+    send_actuator_command_response: SendActuatorCommandResponse
+    def __init__(self, empty: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., error: _Optional[_Union[ErrorDetails, _Mapping]] = ..., list_devices_response: _Optional[_Union[ListConnectedDevicesResponse, _Mapping]] = ..., send_actuator_command_response: _Optional[_Union[SendActuatorCommandResponse, _Mapping]] = ...) -> None: ...
 
 class SendActuatorCommandResponse(_message.Message):
     __slots__ = ()

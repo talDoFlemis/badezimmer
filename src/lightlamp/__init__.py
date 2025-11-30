@@ -6,6 +6,10 @@ from badezimmer import (
     DeviceKind,
     DeviceCategory,
     TransportProtocol,
+    BadezimmerRequest,
+    BadezimmerResponse,
+    ErrorDetails,
+    ErrorCode,
 )
 from badezimmer.tcp import (
     get_random_available_tcp_port,
@@ -35,15 +39,28 @@ info = MDNSServiceInfo(
 mdns = BadezimmerMDNS()
 
 
-async def execute(request: SendActuatorCommandRequest) -> SendActuatorCommandResponse:
-    response = SendActuatorCommandResponse()
-    field = request.WhichOneof("action")
-
-    if field != "light_action":
-        response.message = f"Unknown action {field} for action"
+async def execute(request: BadezimmerRequest) -> BadezimmerResponse:
+    response = BadezimmerResponse()
+    field = request.WhichOneof("request")
+    if field != "send_actuator_command":
+        response.error = ErrorDetails(
+            code=ErrorCode.INVALID_COMMAND,
+            message=f"Unsupported request type: {field}",
+            metadata={"field": field},
+        )
         return response
 
-    light_action = request.light_action
+    actuator_cmd = request.send_actuator_command
+    field = actuator_cmd.WhichOneof("action")
+    if field != "light_action":
+        response.error = ErrorDetails(
+            code=ErrorCode.INVALID_COMMAND,
+            message=f"Unsupported actuator command type: {field}",
+            metadata={"field": field},
+        )
+        return response
+
+    light_action = actuator_cmd.light_action
 
     global state
     msg = ""
@@ -65,7 +82,9 @@ async def execute(request: SendActuatorCommandRequest) -> SendActuatorCommandRes
 
     await mdns.update_service(info)
 
-    return SendActuatorCommandResponse(message=msg.strip())
+    return BadezimmerResponse(
+        send_actuator_command_response=SendActuatorCommandResponse(message=msg.strip())
+    )
 
 
 async def main_server(port: int):

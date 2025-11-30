@@ -15,6 +15,8 @@ from badezimmer.tcp import (
 from badezimmer.mdns import BadezimmerMDNS, MDNSServiceInfo
 import random
 import asyncio
+import signal
+import sys
 
 random_seed = 42069
 random.seed(random_seed)
@@ -84,7 +86,13 @@ async def main_server(port: int):
         logger.info("Service unregistered.")
 
 
+def _handle_signal(signum, frame):
+    raise KeyboardInterrupt
+
+
 def main():
+    signal.signal(signal.SIGINT, _handle_signal)
+    signal.signal(signal.SIGTERM, _handle_signal)
     port = get_random_available_tcp_port()
     try:
         asyncio.run(main_server(port))

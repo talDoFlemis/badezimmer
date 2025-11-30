@@ -101,11 +101,17 @@ async def main_server(port: int):
     finally:
         # Quick cleanup without waiting or logging
         server.close()
-        if mdns.sock:
-            mdns.sock.close()
+        await mdns.unregister_service(info)
+        await mdns.close()
+
+
+def _handle_signal(signum, frame):
+    raise KeyboardInterrupt
 
 
 def main():
+    signal.signal(signal.SIGINT, _handle_signal)
+    signal.signal(signal.SIGTERM, _handle_signal)
     port = get_random_available_tcp_port()
 
     try:

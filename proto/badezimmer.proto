@@ -21,6 +21,7 @@ enum DeviceCategory {
   UNKNOWN_CATEGORY = 0;
   LIGHT_LAMP = 1;
   FART_DETECTOR = 2;
+  TOILET = 3;
 }
 
 enum TransportProtocol {

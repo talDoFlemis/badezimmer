@@ -29,6 +29,7 @@ class DeviceCategory(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     UNKNOWN_CATEGORY: _ClassVar[DeviceCategory]
     LIGHT_LAMP: _ClassVar[DeviceCategory]
     FART_DETECTOR: _ClassVar[DeviceCategory]
+    TOILET: _ClassVar[DeviceCategory]
 
 class TransportProtocol(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -60,6 +61,7 @@ ERROR_DEVICE_STATUS: DeviceStatus
 UNKNOWN_CATEGORY: DeviceCategory
 LIGHT_LAMP: DeviceCategory
 FART_DETECTOR: DeviceCategory
+TOILET: DeviceCategory
 UNKNOWN_PROTOCOL: TransportProtocol
 TCP_PROTOCOL: TransportProtocol
 UDP_PROTOCOL: TransportProtocol
@@ -74,9 +76,9 @@ MDNS_SRV: MDNSType
 MDNS_TXT: MDNSType
 
 class ConnectedDevice(_message.Message):
-    __slots__ = ()
+    __slots__ = ("id", "device_name", "kind", "status", "ips", "port", "properties", "category", "transport_protocol")
     class PropertiesEntry(_message.Message):
-        __slots__ = ()
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -103,7 +105,7 @@ class ConnectedDevice(_message.Message):
     def __init__(self, id: _Optional[str] = ..., device_name: _Optional[str] = ..., kind: _Optional[_Union[DeviceKind, str]] = ..., status: _Optional[_Union[DeviceStatus, str]] = ..., ips: _Optional[_Iterable[str]] = ..., port: _Optional[int] = ..., properties: _Optional[_Mapping[str, str]] = ..., category: _Optional[_Union[DeviceCategory, str]] = ..., transport_protocol: _Optional[_Union[TransportProtocol, str]] = ...) -> None: ...
 
 class ListConnectedDevicesRequest(_message.Message):
-    __slots__ = ()
+    __slots__ = ("filter_kind", "filter_name")
     FILTER_KIND_FIELD_NUMBER: _ClassVar[int]
     FILTER_NAME_FIELD_NUMBER: _ClassVar[int]
     filter_kind: DeviceKind
@@ -111,13 +113,13 @@ class ListConnectedDevicesRequest(_message.Message):
     def __init__(self, filter_kind: _Optional[_Union[DeviceKind, str]] = ..., filter_name: _Optional[str] = ...) -> None: ...
 
 class ListConnectedDevicesResponse(_message.Message):
-    __slots__ = ()
+    __slots__ = ("devices",)
     DEVICES_FIELD_NUMBER: _ClassVar[int]
     devices: _containers.RepeatedCompositeFieldContainer[ConnectedDevice]
     def __init__(self, devices: _Optional[_Iterable[_Union[ConnectedDevice, _Mapping]]] = ...) -> None: ...
 
 class SendActuatorCommandRequest(_message.Message):
-    __slots__ = ()
+    __slots__ = ("device_id", "light_action")
     DEVICE_ID_FIELD_NUMBER: _ClassVar[int]
     LIGHT_ACTION_FIELD_NUMBER: _ClassVar[int]
     device_id: str
@@ -125,9 +127,9 @@ class SendActuatorCommandRequest(_message.Message):
     def __init__(self, device_id: _Optional[str] = ..., light_action: _Optional[_Union[LightLampActionRequest, _Mapping]] = ...) -> None: ...
 
 class ErrorDetails(_message.Message):
-    __slots__ = ()
+    __slots__ = ("code", "message", "metadata")
     class MetadataEntry(_message.Message):
-        __slots__ = ()
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -142,7 +144,7 @@ class ErrorDetails(_message.Message):
     def __init__(self, code: _Optional[_Union[ErrorCode, str]] = ..., message: _Optional[str] = ..., metadata: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class BadezimmerRequest(_message.Message):
-    __slots__ = ()
+    __slots__ = ("empty", "list_devices", "send_actuator_command")
     EMPTY_FIELD_NUMBER: _ClassVar[int]
     LIST_DEVICES_FIELD_NUMBER: _ClassVar[int]
     SEND_ACTUATOR_COMMAND_FIELD_NUMBER: _ClassVar[int]
@@ -152,7 +154,7 @@ class BadezimmerRequest(_message.Message):
     def __init__(self, empty: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., list_devices: _Optional[_Union[ListConnectedDevicesRequest, _Mapping]] = ..., send_actuator_command: _Optional[_Union[SendActuatorCommandRequest, _Mapping]] = ...) -> None: ...
 
 class BadezimmerResponse(_message.Message):
-    __slots__ = ()
+    __slots__ = ("empty", "error", "list_devices_response", "send_actuator_command_response")
     EMPTY_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     LIST_DEVICES_RESPONSE_FIELD_NUMBER: _ClassVar[int]
@@ -164,19 +166,19 @@ class BadezimmerResponse(_message.Message):
     def __init__(self, empty: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., error: _Optional[_Union[ErrorDetails, _Mapping]] = ..., list_devices_response: _Optional[_Union[ListConnectedDevicesResponse, _Mapping]] = ..., send_actuator_command_response: _Optional[_Union[SendActuatorCommandResponse, _Mapping]] = ...) -> None: ...
 
 class SendActuatorCommandResponse(_message.Message):
-    __slots__ = ()
+    __slots__ = ("message",)
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
     message: str
     def __init__(self, message: _Optional[str] = ...) -> None: ...
 
 class Color(_message.Message):
-    __slots__ = ()
+    __slots__ = ("value",)
     VALUE_FIELD_NUMBER: _ClassVar[int]
     value: int
     def __init__(self, value: _Optional[int] = ...) -> None: ...
 
 class LightLampActionRequest(_message.Message):
-    __slots__ = ()
+    __slots__ = ("turn_on", "brightness", "color")
     TURN_ON_FIELD_NUMBER: _ClassVar[int]
     BRIGHTNESS_FIELD_NUMBER: _ClassVar[int]
     COLOR_FIELD_NUMBER: _ClassVar[int]
@@ -186,7 +188,7 @@ class LightLampActionRequest(_message.Message):
     def __init__(self, turn_on: _Optional[bool] = ..., brightness: _Optional[int] = ..., color: _Optional[_Union[Color, _Mapping]] = ...) -> None: ...
 
 class MDNSQuestion(_message.Message):
-    __slots__ = ()
+    __slots__ = ("name", "type")
     NAME_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     name: str
@@ -194,13 +196,13 @@ class MDNSQuestion(_message.Message):
     def __init__(self, name: _Optional[str] = ..., type: _Optional[_Union[MDNSType, str]] = ...) -> None: ...
 
 class MDNSQueryRequest(_message.Message):
-    __slots__ = ()
+    __slots__ = ("questions",)
     QUESTIONS_FIELD_NUMBER: _ClassVar[int]
     questions: _containers.RepeatedCompositeFieldContainer[MDNSQuestion]
     def __init__(self, questions: _Optional[_Iterable[_Union[MDNSQuestion, _Mapping]]] = ...) -> None: ...
 
 class MDNSPointerRecord(_message.Message):
-    __slots__ = ()
+    __slots__ = ("name", "domain_name")
     NAME_FIELD_NUMBER: _ClassVar[int]
     DOMAIN_NAME_FIELD_NUMBER: _ClassVar[int]
     name: str
@@ -208,7 +210,7 @@ class MDNSPointerRecord(_message.Message):
     def __init__(self, name: _Optional[str] = ..., domain_name: _Optional[str] = ...) -> None: ...
 
 class MDNSSRVRecord(_message.Message):
-    __slots__ = ()
+    __slots__ = ("name", "port", "target", "protocol", "service", "instance")
     NAME_FIELD_NUMBER: _ClassVar[int]
     PORT_FIELD_NUMBER: _ClassVar[int]
     TARGET_FIELD_NUMBER: _ClassVar[int]
@@ -224,9 +226,9 @@ class MDNSSRVRecord(_message.Message):
     def __init__(self, name: _Optional[str] = ..., port: _Optional[int] = ..., target: _Optional[str] = ..., protocol: _Optional[_Union[TransportProtocol, str]] = ..., service: _Optional[str] = ..., instance: _Optional[str] = ...) -> None: ...
 
 class MDNSTextRecord(_message.Message):
-    __slots__ = ()
+    __slots__ = ("name", "entries")
     class EntriesEntry(_message.Message):
-        __slots__ = ()
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -239,7 +241,7 @@ class MDNSTextRecord(_message.Message):
     def __init__(self, name: _Optional[str] = ..., entries: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MDNSARecord(_message.Message):
-    __slots__ = ()
+    __slots__ = ("name", "address")
     NAME_FIELD_NUMBER: _ClassVar[int]
     ADDRESS_FIELD_NUMBER: _ClassVar[int]
     name: str
@@ -247,7 +249,7 @@ class MDNSARecord(_message.Message):
     def __init__(self, name: _Optional[str] = ..., address: _Optional[str] = ...) -> None: ...
 
 class MDNSRecord(_message.Message):
-    __slots__ = ()
+    __slots__ = ("name", "ttl", "cache_flush", "ptr_record", "srv_record", "txt_record", "a_record")
     NAME_FIELD_NUMBER: _ClassVar[int]
     TTL_FIELD_NUMBER: _ClassVar[int]
     CACHE_FLUSH_FIELD_NUMBER: _ClassVar[int]
@@ -265,7 +267,7 @@ class MDNSRecord(_message.Message):
     def __init__(self, name: _Optional[str] = ..., ttl: _Optional[int] = ..., cache_flush: _Optional[bool] = ..., ptr_record: _Optional[_Union[MDNSPointerRecord, _Mapping]] = ..., srv_record: _Optional[_Union[MDNSSRVRecord, _Mapping]] = ..., txt_record: _Optional[_Union[MDNSTextRecord, _Mapping]] = ..., a_record: _Optional[_Union[MDNSARecord, _Mapping]] = ...) -> None: ...
 
 class MDNSQueryResponse(_message.Message):
-    __slots__ = ()
+    __slots__ = ("answers", "additional_records")
     ANSWERS_FIELD_NUMBER: _ClassVar[int]
     ADDITIONAL_RECORDS_FIELD_NUMBER: _ClassVar[int]
     answers: _containers.RepeatedCompositeFieldContainer[MDNSRecord]
@@ -273,7 +275,7 @@ class MDNSQueryResponse(_message.Message):
     def __init__(self, answers: _Optional[_Iterable[_Union[MDNSRecord, _Mapping]]] = ..., additional_records: _Optional[_Iterable[_Union[MDNSRecord, _Mapping]]] = ...) -> None: ...
 
 class MDNS(_message.Message):
-    __slots__ = ()
+    __slots__ = ("transaction_id", "timestamp", "query_request", "query_response")
     TRANSACTION_ID_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     QUERY_REQUEST_FIELD_NUMBER: _ClassVar[int]

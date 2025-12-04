@@ -21,3 +21,4 @@ package = true
 gateway = "gateway:main"
 lightlamp = "lightlamp:main"
 fartdetector = "fartdetector:main"
+toilet = "toilet:main"

@@ -1,3 +1,10 @@
+## [1.1.0](https://github.com/talDoFlemis/badezimmer/compare/v1.0.0...v1.1.0) (2025-12-07)
+
+### Features
+
+* adding dockerignore ([e5acc53](https://github.com/talDoFlemis/badezimmer/commit/e5acc5335da414aec1a68e8fed33a35dd1207452))
+* adding gitignore ([9bd72dd](https://github.com/talDoFlemis/badezimmer/commit/9bd72dd26e0cdd01b5262f514174723384922836))
+
 ## 1.0.0 (2025-11-30)
 
 ### Features

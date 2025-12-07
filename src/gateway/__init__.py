@@ -7,6 +7,7 @@ from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 import struct
 from pydantic import BaseModel
+import random
 
 from badezimmer import (
     Color,
@@ -69,7 +70,7 @@ messenger = EventMessenger()
 
 def generate_connected_device_from_info(info: MDNSServiceInfo) -> ConnectedDevice:
     return ConnectedDevice(
-        id=f"{info.name}@{info.type}:{info.port}",
+        id=f"{info.name}@{info.type}",
         device_name=info.name,
         port=info.port,
         status=DeviceStatus.Name(DeviceStatus.ONLINE_DEVICE_STATUS.numerator),
@@ -128,6 +129,7 @@ class GatewayListener(BadezimmerServiceListener):
         device = generate_connected_device_from_info(info=info)
         del devices[device.id]
         logger.info("Removed device", extra={"device_id": device.id})
+        device.status = DeviceStatus.OFFLINE_DEVICE_STATUS
         messenger.send_event(device.SerializeToString())
 
 
@@ -168,7 +170,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:3001",
-    ],  # Next.js dev server
+        "http://localhost:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -271,7 +274,9 @@ async def update_sink(device_id: str, request_body: UpdateSinkRequest):
         send_actuator_command=SendActuatorCommandRequest(
             device_id=device.id,
             sink_action=SinkActionRequest(
-                turn_on=request_body.turn_on,
+                turn_on=request_body.turn_on
+                if request_body.turn_on is not None
+                else False
             ),
         ),
     )

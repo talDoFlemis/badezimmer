@@ -23,6 +23,7 @@ enum DeviceCategory {
   LIGHT_LAMP = 1;
   FART_DETECTOR = 2;
   TOILET = 3;
+  SINK = 4;
 }
 
 enum TransportProtocol {
@@ -52,7 +53,7 @@ message ListConnectedDevicesResponse { repeated ConnectedDevice devices = 1; }
 
 message SendActuatorCommandRequest {
   string device_id = 1;
-  oneof action { LightLampActionRequest light_action = 2; }
+  oneof action { LightLampActionRequest light_action = 2; SinkActionRequest sink_action = 3; }
 }
 
 enum ErrorCode {
@@ -97,6 +98,10 @@ message LightLampActionRequest {
   optional bool turn_on = 1;
   optional int32 brightness = 2;
   optional Color color = 3;
+}
+
+message SinkActionRequest {
+  optional bool turn_on = 1;
 }
 
 enum MDNSType {

@@ -30,6 +30,7 @@ class DeviceCategory(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     LIGHT_LAMP: _ClassVar[DeviceCategory]
     FART_DETECTOR: _ClassVar[DeviceCategory]
     TOILET: _ClassVar[DeviceCategory]
+    SINK: _ClassVar[DeviceCategory]
 
 class TransportProtocol(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -62,6 +63,7 @@ UNKNOWN_CATEGORY: DeviceCategory
 LIGHT_LAMP: DeviceCategory
 FART_DETECTOR: DeviceCategory
 TOILET: DeviceCategory
+SINK: DeviceCategory
 UNKNOWN_PROTOCOL: TransportProtocol
 TCP_PROTOCOL: TransportProtocol
 UDP_PROTOCOL: TransportProtocol
@@ -119,12 +121,14 @@ class ListConnectedDevicesResponse(_message.Message):
     def __init__(self, devices: _Optional[_Iterable[_Union[ConnectedDevice, _Mapping]]] = ...) -> None: ...
 
 class SendActuatorCommandRequest(_message.Message):
-    __slots__ = ("device_id", "light_action")
+    __slots__ = ("device_id", "light_action", "sink_action")
     DEVICE_ID_FIELD_NUMBER: _ClassVar[int]
     LIGHT_ACTION_FIELD_NUMBER: _ClassVar[int]
+    SINK_ACTION_FIELD_NUMBER: _ClassVar[int]
     device_id: str
     light_action: LightLampActionRequest
-    def __init__(self, device_id: _Optional[str] = ..., light_action: _Optional[_Union[LightLampActionRequest, _Mapping]] = ...) -> None: ...
+    sink_action: SinkActionRequest
+    def __init__(self, device_id: _Optional[str] = ..., light_action: _Optional[_Union[LightLampActionRequest, _Mapping]] = ..., sink_action: _Optional[_Union[SinkActionRequest, _Mapping]] = ...) -> None: ...
 
 class ErrorDetails(_message.Message):
     __slots__ = ("code", "message", "metadata")
@@ -186,6 +190,12 @@ class LightLampActionRequest(_message.Message):
     brightness: int
     color: Color
     def __init__(self, turn_on: bool = ..., brightness: _Optional[int] = ..., color: _Optional[_Union[Color, _Mapping]] = ...) -> None: ...
+
+class SinkActionRequest(_message.Message):
+    __slots__ = ("turn_on",)
+    TURN_ON_FIELD_NUMBER: _ClassVar[int]
+    turn_on: bool
+    def __init__(self, turn_on: bool = ...) -> None: ...
 
 class MDNSQuestion(_message.Message):
     __slots__ = ("name", "type")

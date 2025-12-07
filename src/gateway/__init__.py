@@ -14,6 +14,7 @@ from badezimmer import (
     DeviceKind,
     DeviceStatus,
     LightLampActionRequest,
+    SinkActionRequest,
     SendActuatorCommandRequest,
     SendActuatorCommandResponse,
     BadezimmerRequest,
@@ -187,7 +188,15 @@ class UpdateLightRequest(BaseModel):
     color: int | None = None
 
 
+class UpdateSinkRequest(BaseModel):
+    turn_on: Optional[bool]
+
+
 class UpdateLightResponse(BaseModel):
+    message: str
+
+
+class UpdateSinkResponse(BaseModel):
     message: str
 
 
@@ -220,6 +229,35 @@ async def update_light(device_id: str, request_body: UpdateLightRequest):
         )
 
     return UpdateLightResponse(message=response.send_actuator_command_response.message)
+
+
+@app.patch("/devices/sink/{device_id}")
+async def update_sink(device_id: str, request_body: UpdateSinkRequest):
+    if device_id not in devices:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    device = devices[device_id]
+
+    request = BadezimmerRequest(
+        send_actuator_command=SendActuatorCommandRequest(
+            device_id=device.id,
+            sink_action=SinkActionRequest(
+                turn_on=request_body.turn_on,
+            ),
+        ),
+    )
+
+    response_bytes = await send_request(list(device.ips), device.port, request=request)
+
+    response = BadezimmerResponse.FromString(response_bytes)
+    if response.WhichOneof("response") == "error":
+        error = response.error
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error from device: {error.code} - {error.message}",
+        )
+
+    return UpdateSinkResponse(message=response.send_actuator_command_response.message)
 
 
 @app.post("/badezimmer.BadezimmerService/ListConnectedDevices")

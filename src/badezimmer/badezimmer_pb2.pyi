@@ -185,7 +185,7 @@ class LightLampActionRequest(_message.Message):
     turn_on: bool
     brightness: int
     color: Color
-    def __init__(self, turn_on: _Optional[bool] = ..., brightness: _Optional[int] = ..., color: _Optional[_Union[Color, _Mapping]] = ...) -> None: ...
+    def __init__(self, turn_on: bool = ..., brightness: _Optional[int] = ..., color: _Optional[_Union[Color, _Mapping]] = ...) -> None: ...
 
 class MDNSQuestion(_message.Message):
     __slots__ = ("name", "type")
@@ -264,7 +264,7 @@ class MDNSRecord(_message.Message):
     srv_record: MDNSSRVRecord
     txt_record: MDNSTextRecord
     a_record: MDNSARecord
-    def __init__(self, name: _Optional[str] = ..., ttl: _Optional[int] = ..., cache_flush: _Optional[bool] = ..., ptr_record: _Optional[_Union[MDNSPointerRecord, _Mapping]] = ..., srv_record: _Optional[_Union[MDNSSRVRecord, _Mapping]] = ..., txt_record: _Optional[_Union[MDNSTextRecord, _Mapping]] = ..., a_record: _Optional[_Union[MDNSARecord, _Mapping]] = ...) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., ttl: _Optional[int] = ..., cache_flush: bool = ..., ptr_record: _Optional[_Union[MDNSPointerRecord, _Mapping]] = ..., srv_record: _Optional[_Union[MDNSSRVRecord, _Mapping]] = ..., txt_record: _Optional[_Union[MDNSTextRecord, _Mapping]] = ..., a_record: _Optional[_Union[MDNSARecord, _Mapping]] = ...) -> None: ...
 
 class MDNSQueryResponse(_message.Message):
     __slots__ = ("answers", "additional_records")

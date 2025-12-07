@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package badezimmer;
+option go_package = "github.com/talDoFlemis/badezimmer-go/badezimmer";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
@@ -161,4 +162,9 @@ message MDNS {
     MDNSQueryRequest query_request = 3;
     MDNSQueryResponse query_response = 4;
   }
+}
+
+service BadezimmerService {
+  rpc ListConnectedDevices(ListConnectedDevicesRequest) returns (ListConnectedDevicesResponse) {}
+  rpc SendActuatorCommand(SendActuatorCommandRequest) returns (SendActuatorCommandResponse) {}
 }

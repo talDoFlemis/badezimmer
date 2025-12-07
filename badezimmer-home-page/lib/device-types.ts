@@ -17,6 +17,7 @@ export enum DeviceCategory {
   LIGHT_LAMP = 1,
   FART_DETECTOR = 2,
   TOILET = 3,
+  SINK = 4,
 }
 
 export interface ConnectedDevice {
@@ -34,6 +35,7 @@ export interface ConnectedDevice {
 export const deviceCategoryNames: Record<DeviceCategory, string> = {
   [DeviceCategory.UNKNOWN_CATEGORY]: "Unknown",
   [DeviceCategory.LIGHT_LAMP]: "Light Lamp",
+  [DeviceCategory.SINK]: "Sink",
   [DeviceCategory.FART_DETECTOR]: "Fart Detector",
   [DeviceCategory.TOILET]: "Toilet",
 }

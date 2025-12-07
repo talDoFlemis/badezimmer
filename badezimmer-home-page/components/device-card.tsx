@@ -23,6 +23,8 @@ export function DeviceCard({ device }: { device: ConnectedDevice }) {
     switch (category) {
       case DeviceCategory.LIGHT_LAMP:
         return <Lightbulb className="w-5 h-5" />;
+      case DeviceCategory.SINK:
+        return <Droplet className="w-5 h-5" />;
       case DeviceCategory.FART_DETECTOR:
         return <Wind className="w-5 h-5" />;
       case DeviceCategory.TOILET:
@@ -125,6 +127,9 @@ export function DeviceCard({ device }: { device: ConnectedDevice }) {
         </div>
 
         {device.category === DeviceCategory.LIGHT_LAMP && (
+          <DeviceControls device={device} />
+        )}
+        {device.category === DeviceCategory.SINK && (
           <DeviceControls device={device} />
         )}
       </CardContent>

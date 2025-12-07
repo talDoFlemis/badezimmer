@@ -15,6 +15,7 @@ export const {
   ListConnectedDevicesRequest,
   SendActuatorCommandRequest,
   LightLampActionRequest,
+  SinkActionRequest,
   Color,
   DeviceKind,
   DeviceCategory,
@@ -33,10 +34,6 @@ export const listConnectedDevices = async (
     request.setFilterKind(filterKind);
   }
 
-  if (filterName) {
-    request.setFilterName(filterName);
-  }
-
   try {
     const response = await badezimmerClient.listConnectedDevices(request, {});
     return response.getDevicesList();
@@ -48,13 +45,15 @@ export const listConnectedDevices = async (
 
 export const sendActuatorCommand = async (
   deviceId: string,
-  lightAction?: any,
+  action?: any,
 ) => {
   const request = new SendActuatorCommandRequest();
   request.setDeviceId(deviceId);
 
-  if (lightAction) {
-    request.setLightAction(lightAction);
+  if (action instanceof LightLampActionRequest) {
+    request.setLightAction(action)
+  } else if (action instanceof SinkActionRequest) {
+    request.setSinkAction(action)
   }
 
   try {

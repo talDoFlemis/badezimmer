@@ -21,3 +21,25 @@ services:
       context: .
       dockerfile: Dockerfile
     entrypoint: "lightlamp"
+
+  sink:
+    image: ghcr.io/taldoflemis/badezimmer/python-services
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: "sink"
+
+  toilet:
+    image: ghcr.io/taldoflemis/badezimmer/python-services
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: "toilet"
+
+  frontend:
+    image: ghcr.io/taldoflemis/badezimmer/front
+    build:
+      context: .
+      dockerfile: Dockerfile.front
+    ports:
+      - "3000:3000"

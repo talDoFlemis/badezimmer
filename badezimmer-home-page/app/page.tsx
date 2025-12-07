@@ -1,66 +1,109 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { type ConnectedDevice, DeviceCategory } from "@/lib/device-types"
-import { DeviceGrid } from "@/components/device-grid"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Loader2, RefreshCw, Wifi, WifiOff } from "lucide-react"
-import { listConnectedDevices } from "@/lib/grpc-client"
+import { useState, useEffect } from "react";
+import {
+  type ConnectedDevice,
+  DeviceCategory,
+  DeviceStatus,
+} from "@/lib/device-types";
+import { DeviceGrid } from "@/components/device-grid";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Loader2, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { listConnectedDevices, getEventStream } from "@/lib/grpc-client";
 
 export default function Home() {
-  const [devices, setDevices] = useState<ConnectedDevice[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isConnected, setIsConnected] = useState(true)
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [devices, setDevices] = useState<ConnectedDevice[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchDevices = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
-      const devicesList = await listConnectedDevices()
-      
+      setIsLoading(true);
+      setError(null);
+      const devicesList = await listConnectedDevices();
+
       // Convert protobuf objects to plain JavaScript objects
-      const formattedDevices: ConnectedDevice[] = devicesList.map((device: any) => ({
-        id: device.getId(),
-        device_name: device.getDeviceName(),
-        kind: device.getKind(),
-        status: device.getStatus(),
-        ips: device.getIpsList(),
-        port: device.getPort(),
-        properties: device.getPropertiesMap().toObject(),
-        category: device.getCategory(),
-        transport_protocol: device.getTransportProtocol(),
-      }))
-      
-      setDevices(formattedDevices)
-      setIsConnected(true)
-      setLastUpdate(new Date())
+      const formattedDevices: ConnectedDevice[] = devicesList.map(
+        (device: any) => ({
+          id: device.getId(),
+          device_name: device.getDeviceName(),
+          kind: device.getKind(),
+          status: device.getStatus(),
+          ips: device.getIpsList(),
+          port: device.getPort(),
+          properties: device.getPropertiesMap().toObject(),
+          category: device.getCategory(),
+          transport_protocol: device.getTransportProtocol(),
+        }),
+      );
+
+      setDevices(formattedDevices);
+      setIsConnected(true);
+      setLastUpdate(new Date());
     } catch (err) {
-      console.error('Failed to fetch devices:', err)
-      setError(err instanceof Error ? err.message : 'Failed to connect to gateway')
-      setIsConnected(false)
-      setDevices([])
+      console.error("Failed to fetch devices:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to connect to gateway",
+      );
+      setIsConnected(false);
+      setDevices([]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchDevices()
-    
-    // Poll for updates every 5 seconds
-    const interval = setInterval(fetchDevices, 5000)
-    
-    return () => clearInterval(interval)
-  }, [])
+    // Initial fetch
+    fetchDevices();
+
+    // Set up event stream for real-time updates
+    const cleanup = getEventStream(
+      () => {
+        // onOpen callback
+        setIsConnected(true);
+        console.log("Connected to device event stream");
+      },
+      (err) => {
+        // onError callback
+        console.error("Event stream error:", err);
+        setIsConnected(false);
+        setError("Lost connection to gateway");
+      },
+      (device) => {
+        // onDeviceEvent callback
+        setDevices((prevDevices) => {
+          // Find if device already exists
+          const existingIndex = prevDevices.findIndex(
+            (d) => d.id === device.id,
+          );
+
+          if (existingIndex >= 0) {
+            // Update existing device
+            const newDevices = [...prevDevices];
+            newDevices[existingIndex] = device;
+            return newDevices;
+          } else {
+            // Add new device
+            return [...prevDevices, device];
+          }
+        });
+        setLastUpdate(new Date());
+      },
+    );
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, []);
 
   const handleRefresh = async () => {
-    await fetchDevices()
-  }
+    await fetchDevices();
+  };
 
-  const onlineDevices = devices.filter((d) => d.status === 2).length
+  const onlineDevices = devices.filter((d) => d.status === 2).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -92,7 +135,11 @@ export default function Home() {
                 size="sm"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
                 Refresh
               </Button>
             </div>
@@ -103,19 +150,25 @@ export default function Home() {
             <Card className="bg-slate-800 border-slate-700">
               <div className="p-4">
                 <p className="text-slate-400 text-sm mb-1">Total Devices</p>
-                <p className="text-3xl font-bold text-white">{devices.length}</p>
+                <p className="text-3xl font-bold text-white">
+                  {devices.length}
+                </p>
               </div>
             </Card>
             <Card className="bg-slate-800 border-slate-700">
               <div className="p-4">
                 <p className="text-slate-400 text-sm mb-1">Online</p>
-                <p className="text-3xl font-bold text-green-400">{onlineDevices}</p>
+                <p className="text-3xl font-bold text-green-400">
+                  {onlineDevices}
+                </p>
               </div>
             </Card>
             <Card className="bg-slate-800 border-slate-700">
               <div className="p-4">
                 <p className="text-slate-400 text-sm mb-1">Last Updated</p>
-                <p className="text-sm text-slate-300">{lastUpdate ? lastUpdate.toLocaleTimeString() : "—"}</p>
+                <p className="text-sm text-slate-300">
+                  {lastUpdate ? lastUpdate.toLocaleTimeString() : "—"}
+                </p>
               </div>
             </Card>
           </div>
@@ -123,7 +176,9 @@ export default function Home() {
 
         {/* Device Grid */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">Connected Devices</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Connected Devices
+          </h2>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -142,5 +197,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }

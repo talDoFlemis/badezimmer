@@ -1,3 +1,23 @@
+## [1.2.0](https://github.com/talDoFlemis/badezimmer/compare/v1.1.0...v1.2.0) (2025-12-07)
+
+### Features
+
+* add docker ([6db7648](https://github.com/talDoFlemis/badezimmer/commit/6db7648ba347559a78884237083d304852af3d35))
+* add get stream to grpc client ([2f97b9c](https://github.com/talDoFlemis/badezimmer/commit/2f97b9c7fad7267208d162f21bae8f6c0945bdd3))
+* adding sink service ([81adecb](https://github.com/talDoFlemis/badezimmer/commit/81adecb77851269094dacef470ff5d72d0b2c74b))
+* **device-card:** add better properties ([7886b63](https://github.com/talDoFlemis/badezimmer/commit/7886b63e3bd473751617ee415984880a27b68b86))
+* **gateway:** add event stream ([7627abc](https://github.com/talDoFlemis/badezimmer/commit/7627abc6ddf6ff04f422a55eb73ed58a1118ff90))
+* **page:** add real time updates ([7c123e1](https://github.com/talDoFlemis/badezimmer/commit/7c123e12ee1bc122d8d9f1eadb3f4c1cc6a5f590))
+
+### Bug Fixes
+
+* docker broken context ([9a3bc3a](https://github.com/talDoFlemis/badezimmer/commit/9a3bc3a96067324d28c88c69aface7c3c3294b6f))
+* fixing turning devices on ([a18e847](https://github.com/talDoFlemis/badezimmer/commit/a18e847906b2159d64987035d58a91067311b8a3))
+
+### Code Refactoring
+
+* **gateway:** remove port from id ([1af1f98](https://github.com/talDoFlemis/badezimmer/commit/1af1f983a365099bea48479f964a39e64736f317))
+
 ## [1.1.0](https://github.com/talDoFlemis/badezimmer/compare/v1.0.0...v1.1.0) (2025-12-07)
 
 ### Features

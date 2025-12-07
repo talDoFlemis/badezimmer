@@ -1,4 +1,4 @@
-from asyncio import futures
+from asyncio import Queue, futures
 import logging
 from contextlib import asynccontextmanager
 
@@ -26,6 +26,8 @@ from badezimmer import (
     ListConnectedDevicesRequest,
     ListConnectedDevicesResponse,
 )
+from starlette.responses import StreamingResponse
+import asyncio
 from badezimmer.badezimmer_pb2 import TransportProtocol
 from badezimmer.mdns import (
     BadezimmerServiceListener,
@@ -43,6 +45,26 @@ setup_logger(logger)
 mdns = BadezimmerMDNS()
 
 devices: dict[str, ConnectedDevice] = {}
+
+
+class EventMessenger:
+    def __init__(self):
+        self.listeners: list[Queue] = []
+
+    def add_listener(self):
+        queue = asyncio.Queue()
+        self.listeners.append(queue)
+        return queue
+
+    def remove_listener(self, queue: asyncio.Queue):
+        self.listeners.remove(queue)
+
+    def send_event(self, event):
+        for listener in self.listeners:
+            listener.put_nowait(event)
+
+
+messenger = EventMessenger()
 
 
 def generate_connected_device_from_info(info: MDNSServiceInfo) -> ConnectedDevice:
@@ -79,6 +101,8 @@ class GatewayListener(BadezimmerServiceListener):
             },
         )
 
+        messenger.send_event(device.SerializeToString())
+
     def add_service(self, mdns: BadezimmerMDNS, info: MDNSServiceInfo) -> None:
         device = generate_connected_device_from_info(info=info)
 
@@ -98,10 +122,13 @@ class GatewayListener(BadezimmerServiceListener):
             },
         )
 
+        messenger.send_event(device.SerializeToString())
+
     def remove_service(self, mdns: BadezimmerMDNS, info: MDNSServiceInfo) -> None:
         device = generate_connected_device_from_info(info=info)
         del devices[device.id]
         logger.info("Removed device", extra={"device_id": device.id})
+        messenger.send_event(device.SerializeToString())
 
 
 async def discovery_services_job() -> None:
@@ -211,7 +238,9 @@ async def update_light(device_id: str, request_body: UpdateLightRequest):
         send_actuator_command=SendActuatorCommandRequest(
             device_id=device.id,
             light_action=LightLampActionRequest(
-                turn_on=request_body.turn_on,
+                turn_on=request_body.turn_on
+                if request_body.turn_on is not None
+                else False,
                 brightness=request_body.brightness,
                 color=Color(value=request_body.color),
             ),
@@ -453,6 +482,21 @@ async def grpc_send_actuator_command(request: Request):
                 ),
             },
         )
+
+
+@app.get("/devices/events")
+async def device_events():
+    async def async_generator():
+        queue = messenger.add_listener()
+        try:
+            while True:
+                device_bytes = await queue.get()
+                encoded_data = base64.b64encode(device_bytes).decode("utf-8")
+                yield f"data: {encoded_data}\n\n"
+        finally:
+            messenger.remove_listener(queue)
+
+    return StreamingResponse(async_generator(), media_type="text/event-stream")
 
 
 def main():

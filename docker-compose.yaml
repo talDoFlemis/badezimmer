@@ -39,7 +39,7 @@ services:
   frontend:
     image: ghcr.io/taldoflemis/badezimmer/front
     build:
-      context: .
-      dockerfile: Dockerfile.front
+      context: ./badezimmer-home-page/
+      dockerfile: ../Dockerfile.front
     ports:
       - "3000:3000"

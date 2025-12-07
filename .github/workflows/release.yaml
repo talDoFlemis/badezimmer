@@ -101,8 +101,8 @@ jobs:
       - name: Build and push python-services
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: Dockerfile.front
+          context: ./badezimmer-home-page/
+          file: ../Dockerfile.front
           push: true
           tags: ${{ steps.meta-front.outputs.tags }}
           labels: ${{ steps.meta-front.outputs.labels }}

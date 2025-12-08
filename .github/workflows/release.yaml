@@ -43,8 +43,8 @@ jobs:
             @semantic-release/changelog
             @semantic-release/git
             conventional-changelog-conventionalcommits
-  build-and-push:
-    name: Build and Push Docker Images
+  build-python-services:
+    name: Build and Push Python Services
     runs-on: ubuntu-latest
     needs: release
     if: needs.release.outputs.new_release_published == 'true'
@@ -87,8 +87,29 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
-      - name: Extract metadata frontend
-        id: meta-front
+  build-frontend:
+    name: Build and Push Frontend
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.new_release_version }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/front
@@ -98,20 +119,41 @@ jobs:
             type=semver,pattern={{major}},value=${{ needs.release.outputs.new_release_version }}
             type=raw,value=latest
 
-      - name: Build and push python-services
+      - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
           context: ./badezimmer-home-page/
           file: Dockerfile.front
           push: true
-          tags: ${{ steps.meta-front.outputs.tags }}
-          labels: ${{ steps.meta-front.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
-      - name: Extract metadata go-water-leak
-        id: meta-go-water-leak
+  build-go-water-leak:
+    name: Build and Push Go Water Leak
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.new_release_version }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/go-water-leak
@@ -127,8 +169,8 @@ jobs:
           context: .
           file: Dockerfile.water-leak
           push: true
-          tags: ${{ steps.meta-go-water-leak.outputs.tags }}
-          labels: ${{ steps.meta-go-water-leak.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64

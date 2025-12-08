@@ -102,7 +102,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./badezimmer-home-page/
-          file: ../Dockerfile.front
+          file: Dockerfile.front
           push: true
           tags: ${{ steps.meta-front.outputs.tags }}
           labels: ${{ steps.meta-front.outputs.labels }}

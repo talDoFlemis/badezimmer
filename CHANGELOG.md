@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/talDoFlemis/badezimmer/compare/v1.3.1...v1.4.0) (2025-12-08)
+
+### Features
+
+* **release:** run workflows in parallel ([59fd8d5](https://github.com/talDoFlemis/badezimmer/commit/59fd8d5488b271c72838379c393ca2c7d59daa42))
+
 ## [1.3.1](https://github.com/talDoFlemis/badezimmer/compare/v1.3.0...v1.3.1) (2025-12-08)
 
 ### Bug Fixes

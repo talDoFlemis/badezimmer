@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/talDoFlemis/badezimmer/compare/v1.2.0...v1.2.1) (2025-12-08)
+
+### Bug Fixes
+
+* **workflow:** dockerfile missing on release ([c183ce3](https://github.com/talDoFlemis/badezimmer/commit/c183ce3e1bf68a4e4fdf46db3bb71164ac570af0))
+
 ## [1.2.0](https://github.com/talDoFlemis/badezimmer/compare/v1.1.0...v1.2.0) (2025-12-07)
 
 ### Features

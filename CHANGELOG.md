@@ -1,3 +1,14 @@
+## [1.3.0](https://github.com/talDoFlemis/badezimmer/compare/v1.2.1...v1.3.0) (2025-12-08)
+
+### Features
+
+* add waterleak device definition ([9e1eb68](https://github.com/talDoFlemis/badezimmer/commit/9e1eb688749eafc7de5dca2ca6bc7e8e0cbeaac6))
+* add waterleak device detector ([c63900b](https://github.com/talDoFlemis/badezimmer/commit/c63900bd237b556b9956d0fcc8769ee74d16540c))
+
+### Documentation
+
+* update README ([33dd2bc](https://github.com/talDoFlemis/badezimmer/commit/33dd2bc15aa68df7e0a8d8751e168e5330a8ba01))
+
 ## [1.2.1](https://github.com/talDoFlemis/badezimmer/compare/v1.2.0...v1.2.1) (2025-12-08)
 
 ### Bug Fixes

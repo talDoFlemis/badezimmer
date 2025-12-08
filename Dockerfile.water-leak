@@ -19,12 +19,10 @@ COPY go-water-leak/badezimmer/ ./badezimmer/
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o water-leak .
 
-# Final stage
-FROM alpine:latest
+# Final stage - using distroless for better multi-arch support
+FROM gcr.io/distroless/static-debian12:nonroot
 
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
+WORKDIR /app
 
 # Copy the binary from builder
 COPY --from=builder /app/water-leak .

@@ -6,6 +6,7 @@ tasks:
     cmds:
       - uv run python -m grpc_tools.protoc --python_out=src/badezimmer --pyi_out=src/badezimmer ./proto/*.proto -I ./proto/ --grpc_python_out=src/badezimmer
       - protoc -I=./proto ./proto/*.proto --js_out=import_style=commonjs,binary:badezimmer-home-page/generated --grpc-web_out=import_style=commonjs,mode=grpcwebtext:badezimmer-home-page/generated
+      - mkdir -p go-water-leak/badezimmer && protoc -I=./proto ./proto/*.proto --go_out=go-water-leak/badezimmer --go_opt=paths=source_relative
 
 
   gateway:run:

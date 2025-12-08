@@ -36,6 +36,12 @@ services:
       dockerfile: Dockerfile
     entrypoint: "toilet"
 
+  waterleak:
+    image: ghcr.io/taldoflemis/badezimmer/go-water-leak
+    build:
+      context: .
+      dockerfile: Dockerfile.water-leak
+
   frontend:
     image: ghcr.io/taldoflemis/badezimmer/front
     build:

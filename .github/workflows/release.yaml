@@ -109,3 +109,26 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
+
+      - name: Extract metadata go-water-leak
+        id: meta-go-water-leak
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/go-water-leak
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.release.outputs.new_release_version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release.outputs.new_release_version }}
+            type=semver,pattern={{major}},value=${{ needs.release.outputs.new_release_version }}
+            type=raw,value=latest
+
+      - name: Build and push go-water-leak
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.water-leak
+          push: true
+          tags: ${{ steps.meta-go-water-leak.outputs.tags }}
+          labels: ${{ steps.meta-go-water-leak.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64

@@ -1,0 +1,35 @@
+# Build stage
+FROM golang:1.23-alpine AS builder
+
+WORKDIR /app
+
+# Install git and protobuf compiler
+RUN apk add --no-cache git protobuf-dev
+
+# Copy go mod files first for better caching
+COPY go-water-leak/go.mod go-water-leak/go.sum* ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY go-water-leak/*.go ./
+COPY go-water-leak/badezimmer/ ./badezimmer/
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o water-leak .
+
+# Final stage
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Copy the binary from builder
+COPY --from=builder /app/water-leak .
+
+# Expose port (will be determined at runtime)
+EXPOSE 8080
+
+CMD ["./water-leak"]

@@ -31,6 +31,7 @@ class DeviceCategory(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     FART_DETECTOR: _ClassVar[DeviceCategory]
     TOILET: _ClassVar[DeviceCategory]
     SINK: _ClassVar[DeviceCategory]
+    WATER_LEAK: _ClassVar[DeviceCategory]
 
 class TransportProtocol(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -64,6 +65,7 @@ LIGHT_LAMP: DeviceCategory
 FART_DETECTOR: DeviceCategory
 TOILET: DeviceCategory
 SINK: DeviceCategory
+WATER_LEAK: DeviceCategory
 UNKNOWN_PROTOCOL: TransportProtocol
 TCP_PROTOCOL: TransportProtocol
 UDP_PROTOCOL: TransportProtocol

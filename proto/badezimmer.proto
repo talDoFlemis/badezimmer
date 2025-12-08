@@ -24,6 +24,7 @@ enum DeviceCategory {
   FART_DETECTOR = 2;
   TOILET = 3;
   SINK = 4;
+  WATER_LEAK = 5;
 }
 
 enum TransportProtocol {

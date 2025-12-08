@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/talDoFlemis/badezimmer/compare/v1.3.0...v1.3.1) (2025-12-08)
+
+### Bug Fixes
+
+* **Dockerfile.water-leak:** use distroless instead of raw alpine ([64f3efb](https://github.com/talDoFlemis/badezimmer/commit/64f3efbe78fefcdbaebffc3d2afe6fa6cc2b0855))
+
 ## [1.3.0](https://github.com/talDoFlemis/badezimmer/compare/v1.2.1...v1.3.0) (2025-12-08)
 
 ### Features

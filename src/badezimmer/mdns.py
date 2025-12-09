@@ -77,11 +77,6 @@ class BadezimmerMDNS:
         self.excluded_ip_prefixes = excluded_ip_prefixes or (
             "127.",
             "172.17.",
-            "172.18.",
-            "172.19.",
-            "172.20.",
-            "172.21.",
-            "172.22.",
         )
 
         self.registered_services: Dict[str, List[str]] = {}

@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/talDoFlemis/badezimmer/compare/v1.4.0...v1.4.1) (2025-12-09)
+
+### Bug Fixes
+
+* broken ip prefixes from non loopback ips ([98cdf98](https://github.com/talDoFlemis/badezimmer/commit/98cdf98f1f18d2fb284e1b3896817ac36dcf6400))
+
 ## [1.4.0](https://github.com/talDoFlemis/badezimmer/compare/v1.3.1...v1.4.0) (2025-12-08)
 
 ### Features
